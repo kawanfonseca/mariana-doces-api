@@ -1,0 +1,248 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Enums convertidos para strings devido à limitação do SQLite
+// UserRole: 'ADMIN' | 'OPERATOR'
+// SaleChannel: 'DIRECT' | 'IFOOD'
+// MovementType: 'IN' | 'OUT' | 'ADJUST'
+// MovementEntity: 'INGREDIENT' | 'PACKAGING' | 'PRODUCT'
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("OPERATOR")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Ingredient {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  unit        String  // g, ml, un
+  costPerUnit Float
+  supplier    String?
+  active      Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  recipeItems       RecipeItem[]
+  inventoryMovements InventoryMovement[]
+
+  @@map("ingredients")
+}
+
+model Packaging {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  unitCost  Float
+  active    Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  packagingUsages   PackagingUsage[]
+  inventoryMovements InventoryMovement[]
+
+  @@map("packaging")
+}
+
+model Product {
+  id                    String   @id @default(cuid())
+  name                  String   @unique
+  channelBasePriceDirect Float?
+  channelBasePriceIFood  Float?
+  active                Boolean  @default(true)
+  defaultVariantId      String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  variants            ProductVariant[]
+  recipeItems         RecipeItem[]
+  packagingUsages     PackagingUsage[]
+  laborCostPreset     LaborCostPreset?
+  saleItems           SaleItem[]
+  costSnapshots       CostSnapshot[]
+  inventoryMovements  InventoryMovement[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  name      String
+  sku       String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  recipeItems     RecipeItem[]
+  packagingUsages PackagingUsage[]
+  saleItems       SaleItem[]
+  costSnapshots   CostSnapshot[]
+
+  @@unique([productId, name])
+  @@map("product_variants")
+}
+
+model RecipeItem {
+  id        String  @id @default(cuid())
+  productId String?
+  variantId String?
+  ingredientId String
+  qty       Float
+  wastePct  Float?  @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product    Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant    ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  ingredient Ingredient      @relation(fields: [ingredientId], references: [id])
+
+  @@map("recipe_items")
+}
+
+model PackagingUsage {
+  id        String  @id @default(cuid())
+  productId String?
+  variantId String?
+  packagingId String
+  qty       Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product   Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  packaging Packaging       @relation(fields: [packagingId], references: [id])
+
+  @@map("packaging_usage")
+}
+
+model LaborCostPreset {
+  id              String @id @default(cuid())
+  productId       String @unique
+  name            String
+  minutesPerBatch Int
+  batchYield      Int    // unidades por batch
+  laborRatePerHour Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("labor_cost_presets")
+}
+
+model InventoryMovement {
+  id        String         @id @default(cuid())
+  type      String
+  entity    String
+  entityId  String
+  qty       Float
+  unit      String
+  unitCost  Float?
+  note      String?
+  date      DateTime       @default(now())
+  createdAt DateTime       @default(now())
+
+  ingredient Ingredient? @relation(fields: [entityId], references: [id])
+  packaging  Packaging?  @relation(fields: [entityId], references: [id])
+  product    Product?    @relation(fields: [entityId], references: [id])
+
+  @@map("inventory_movements")
+}
+
+model SaleOrder {
+  id           String      @id @default(cuid())
+  date         DateTime
+  channel      String
+  grossAmount  Float
+  discounts    Float       @default(0)
+  platformFees Float       @default(0)
+  costs        Float       @default(0)
+  netAmount    Float
+  notes        String?
+  customerName String?
+  customerPhone String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  items SaleItem[]
+
+  @@map("sale_orders")
+}
+
+model SaleItem {
+  id           String @id @default(cuid())
+  orderId      String
+  productId    String?
+  variantId    String?
+  qty          Float
+  unitPrice    Float
+  lineGross    Float
+  lineDiscount Float  @default(0)
+  lineNet      Float
+  createdAt    DateTime @default(now())
+
+  order   SaleOrder       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product?        @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("sale_items")
+}
+
+model Promotion {
+  id         String    @id @default(cuid())
+  name       String
+  channel    String?
+  percentOff Float?
+  valueOff   Float?
+  activeFrom DateTime
+  activeTo   DateTime
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("promotions")
+}
+
+model CostSnapshot {
+  id             String  @id @default(cuid())
+  productId      String?
+  variantId      String?
+  ingredientsCost Float
+  packagingCost   Float
+  laborCost       Float
+  overheadCost    Float   @default(0)
+  totalUnitCost   Float
+  createdAt       DateTime @default(now())
+
+  product Product?        @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("cost_snapshots")
+}
+
+model Config {
+  id                     String @id @default(cuid())
+  key                    String @unique
+  value                  String
+  description            String?
+  updatedAt              DateTime @updatedAt
+
+  @@map("config")
+}
