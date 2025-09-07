@@ -1,5 +1,9 @@
 import { Request } from 'express';
-import { UserRole, SaleChannel, MovementType, MovementEntity } from '@prisma/client';
+// Tipos temporários até o Prisma Client ser gerado corretamente
+export type UserRole = 'ADMIN' | 'OPERATOR';
+export type SaleChannel = 'DIRECT' | 'IFOOD';
+export type MovementType = 'IN' | 'OUT' | 'ADJUST';
+export type MovementEntity = 'INGREDIENT' | 'PACKAGING' | 'PRODUCT';
 
 export interface AuthenticatedRequest extends Request {
   user?: {

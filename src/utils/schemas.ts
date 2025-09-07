@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SaleChannel, MovementType, MovementEntity, UserRole } from '@prisma/client';
+import { SaleChannel, MovementType, MovementEntity, UserRole } from '../types';
 
 // Auth schemas
 export const loginSchema = z.object({
@@ -11,7 +11,7 @@ export const createUserSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  role: z.nativeEnum(UserRole).optional()
+  role: z.enum(['ADMIN', 'OPERATOR']).optional()
 });
 
 // Ingredient schemas
@@ -84,7 +84,7 @@ export const saleItemSchema = z.object({
 
 export const createSaleOrderSchema = z.object({
   date: z.string().refine(date => !isNaN(Date.parse(date)), 'Data inválida'),
-  channel: z.nativeEnum(SaleChannel),
+  channel: z.enum(['DIRECT', 'IFOOD']),
   items: z.array(saleItemSchema).min(1, 'Pelo menos um item é obrigatório'),
   discounts: z.number().min(0).optional(),
   notes: z.string().optional(),
@@ -94,8 +94,8 @@ export const createSaleOrderSchema = z.object({
 
 // Inventory schemas
 export const inventoryMovementSchema = z.object({
-  type: z.nativeEnum(MovementType),
-  entity: z.nativeEnum(MovementEntity),
+  type: z.enum(['IN', 'OUT', 'ADJUST']),
+  entity: z.enum(['INGREDIENT', 'PACKAGING', 'PRODUCT']),
   entityId: z.string().cuid('ID da entidade inválido'),
   qty: z.number().positive('Quantidade deve ser positiva'),
   unit: z.string().min(1, 'Unidade é obrigatória'),
@@ -121,7 +121,7 @@ export const paginationSchema = z.object({
 export const dateRangeSchema = z.object({
   dateFrom: z.string().refine(date => !isNaN(Date.parse(date)), 'Data inicial inválida').optional(),
   dateTo: z.string().refine(date => !isNaN(Date.parse(date)), 'Data final inválida').optional(),
-  channel: z.nativeEnum(SaleChannel).optional()
+  channel: z.enum(['DIRECT', 'IFOOD']).optional()
 });
 
 export const idParamSchema = z.object({

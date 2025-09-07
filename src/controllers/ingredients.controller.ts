@@ -40,7 +40,7 @@ export const getIngredients = async (req: AuthenticatedRequest, res: Response, n
   }
 };
 
-export const getIngredient = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const getIngredient = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -57,7 +57,8 @@ export const getIngredient = async (req: AuthenticatedRequest, res: Response, ne
     });
 
     if (!ingredient) {
-      return res.status(404).json({ error: 'Ingrediente não encontrado' });
+      res.status(404).json({ error: 'Ingrediente não encontrado' });
+      return;
     }
 
     res.json(ingredient);

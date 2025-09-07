@@ -123,14 +123,15 @@ export const getProductsReport = async (req: AuthenticatedRequest, res: Response
 
     // Buscar custos dos produtos
     for (const [productId, report] of productMap) {
+      const whereCondition: any = { productId };
+      if (dateFrom || dateTo) {
+        whereCondition.createdAt = {};
+        if (dateFrom) whereCondition.createdAt.gte = new Date(dateFrom);
+        if (dateTo) whereCondition.createdAt.lte = new Date(dateTo);
+      }
+
       const costSnapshots = await prisma.costSnapshot.findMany({
-        where: {
-          productId,
-          createdAt: {
-            gte: dateFrom ? new Date(dateFrom) : undefined,
-            lte: dateTo ? new Date(dateTo) : undefined
-          }
-        }
+        where: whereCondition
       });
 
       if (costSnapshots.length > 0) {

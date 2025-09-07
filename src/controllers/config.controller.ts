@@ -12,7 +12,7 @@ export const getConfigs = async (req: AuthenticatedRequest, res: Response, next:
     const configObject = configs.reduce((acc, config) => {
       acc[config.key] = {
         value: config.value,
-        description: config.description
+        ...(config.description && { description: config.description })
       };
       return acc;
     }, {} as Record<string, { value: string; description?: string }>);
@@ -29,8 +29,15 @@ export const updateConfig = async (req: AuthenticatedRequest, res: Response, nex
 
     const config = await prisma.config.upsert({
       where: { key },
-      update: { value, description },
-      create: { key, value, description }
+      update: { 
+        value, 
+        description: description || null 
+      },
+      create: { 
+        key, 
+        value, 
+        description: description || null 
+      }
     });
 
     res.json(config);

@@ -9,16 +9,18 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 export const uploadMiddleware = upload.single('csvFile');
 
-export const importSalesCSV = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const importSalesCSV = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'Arquivo CSV não fornecido' });
+      res.status(400).json({ error: 'Arquivo CSV não fornecido' });
+      return;
     }
 
     const { date, channel = 'DIRECT' } = req.body;
 
     if (!date) {
-      return res.status(400).json({ error: 'Data é obrigatória' });
+      res.status(400).json({ error: 'Data é obrigatória' });
+      return;
     }
 
     const csvData: any[] = [];
@@ -35,12 +37,13 @@ export const importSalesCSV = async (req: AuthenticatedRequest, res: Response, n
     });
 
     if (csvData.length === 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Arquivo CSV vazio',
         processedRows: 0,
         errors: ['Nenhum dado encontrado no arquivo']
       } as CsvImportResult);
+      return;
     }
 
     // Buscar todos os produtos para mapear nomes para IDs
@@ -101,12 +104,13 @@ export const importSalesCSV = async (req: AuthenticatedRequest, res: Response, n
     });
 
     if (saleItems.length === 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Nenhum item válido encontrado no CSV',
         processedRows: 0,
         errors
       } as CsvImportResult);
+      return;
     }
 
     // Criar o pedido

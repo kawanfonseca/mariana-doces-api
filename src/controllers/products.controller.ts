@@ -217,7 +217,10 @@ export const updateProductRecipe = async (req: AuthenticatedRequest, res: Respon
       if (laborCostPreset) {
         await tx.laborCostPreset.create({
           data: {
-            ...laborCostPreset,
+            name: laborCostPreset.name,
+            minutesPerBatch: laborCostPreset.minutesPerBatch,
+            batchYield: laborCostPreset.batchYield,
+            laborRatePerHour: laborCostPreset.laborRatePerHour,
             productId: id
           }
         });
@@ -230,7 +233,7 @@ export const updateProductRecipe = async (req: AuthenticatedRequest, res: Respon
   }
 };
 
-export const getPricingPreview = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const getPricingPreview = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { productId } = req.query as { productId: string };
 

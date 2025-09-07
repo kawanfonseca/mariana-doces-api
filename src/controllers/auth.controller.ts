@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../services/database';
 import { hashPassword, comparePassword } from '../utils/password';
 import { generateToken } from '../utils/jwt';
-import { CreateUserDto, LoginDto } from '../types';
+import { CreateUserDto, LoginDto, UserRole } from '../types';
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { email, password }: LoginDto = req.body;
 
@@ -14,20 +14,22 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Credenciais inválidas' });
+      res.status(401).json({ error: 'Credenciais inválidas' });
+      return;
     }
 
     // Verificar senha
     const isValidPassword = await comparePassword(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ error: 'Credenciais inválidas' });
+      res.status(401).json({ error: 'Credenciais inválidas' });
+      return;
     }
 
     // Gerar token
     const token = generateToken({
       id: user.id,
       email: user.email,
-      role: user.role
+      role: user.role as UserRole
     });
 
     res.json({
@@ -44,7 +46,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { email, password, name, role }: CreateUserDto = req.body;
 
@@ -54,7 +56,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     });
 
     if (existingUser) {
-      return res.status(409).json({ error: 'Usuário já existe' });
+      res.status(409).json({ error: 'Usuário já existe' });
+      return;
     }
 
     // Hash da senha
@@ -84,7 +87,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-export const me = async (req: Request, res: Response, next: NextFunction) => {
+export const me = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const userId = (req as any).user.id;
 
@@ -100,7 +103,8 @@ export const me = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      res.status(404).json({ error: 'Usuário não encontrado' });
+      return;
     }
 
     res.json(user);
