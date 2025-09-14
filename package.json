@@ -2,7 +2,7 @@
   "name": "mariana-doces-api",
   "version": "1.0.0",
   "description": "API para sistema de gerenciamento da confeitaria Mariana Doces",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc && prisma generate",
