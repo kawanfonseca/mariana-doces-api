@@ -45,7 +45,7 @@ export const getProducts = async (req: AuthenticatedRequest, res: Response, next
   }
 };
 
-export const getProduct = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const getProduct = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -77,7 +77,8 @@ export const getProduct = async (req: AuthenticatedRequest, res: Response, next:
     });
 
     if (!product) {
-      return res.status(404).json({ error: 'Produto não encontrado' });
+      res.status(404).json({ error: 'Produto não encontrado' });
+      return;
     }
 
     res.json(product);
@@ -116,7 +117,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response, ne
   }
 };
 
-export const deleteProduct = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const deleteProduct = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -126,9 +127,10 @@ export const deleteProduct = async (req: AuthenticatedRequest, res: Response, ne
     });
 
     if (salesCount > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Não é possível excluir produto que possui vendas registradas'
       });
+      return;
     }
 
     await prisma.product.delete({
@@ -141,7 +143,7 @@ export const deleteProduct = async (req: AuthenticatedRequest, res: Response, ne
   }
 };
 
-export const getProductRecipe = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const getProductRecipe = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -163,7 +165,8 @@ export const getProductRecipe = async (req: AuthenticatedRequest, res: Response,
     });
 
     if (!product) {
-      return res.status(404).json({ error: 'Produto não encontrado' });
+      res.status(404).json({ error: 'Produto não encontrado' });
+      return;
     }
 
     res.json({

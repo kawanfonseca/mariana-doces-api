@@ -2,10 +2,10 @@
   "name": "mariana-doces-api",
   "version": "1.0.0",
   "description": "API para sistema de gerenciamento da confeitaria Mariana Doces",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && tsc",
+    "build": "tsc && prisma generate",
     "start": "node dist/server.js",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx --tsconfig tsconfig.seed.json prisma/seed.ts",
@@ -20,7 +20,7 @@
     "format": "prettier --write src/**/*.ts",
     "format:check": "prettier --check src/**/*.ts",
     "postinstall": "prisma generate",
-    "vercel-build": "npm run build"
+    "vercel-build": "prisma generate && tsc"
   },
   "keywords": [
     "confeitaria",

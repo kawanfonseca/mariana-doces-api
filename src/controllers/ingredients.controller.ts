@@ -97,7 +97,7 @@ export const updateIngredient = async (req: AuthenticatedRequest, res: Response,
   }
 };
 
-export const deleteIngredient = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const deleteIngredient = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -107,9 +107,10 @@ export const deleteIngredient = async (req: AuthenticatedRequest, res: Response,
     });
 
     if (usageCount > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Não é possível excluir ingrediente que está sendo usado em receitas'
       });
+      return;
     }
 
     await prisma.ingredient.delete({

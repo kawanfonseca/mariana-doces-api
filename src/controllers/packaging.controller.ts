@@ -40,7 +40,7 @@ export const getPackaging = async (req: AuthenticatedRequest, res: Response, nex
   }
 };
 
-export const getPackagingById = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const getPackagingById = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -57,7 +57,8 @@ export const getPackagingById = async (req: AuthenticatedRequest, res: Response,
     });
 
     if (!packaging) {
-      return res.status(404).json({ error: 'Embalagem não encontrada' });
+      res.status(404).json({ error: 'Embalagem não encontrada' });
+      return;
     }
 
     res.json(packaging);
@@ -96,7 +97,7 @@ export const updatePackaging = async (req: AuthenticatedRequest, res: Response, 
   }
 };
 
-export const deletePackaging = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const deletePackaging = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -106,9 +107,10 @@ export const deletePackaging = async (req: AuthenticatedRequest, res: Response, 
     });
 
     if (usageCount > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Não é possível excluir embalagem que está sendo usada em produtos'
       });
+      return;
     }
 
     await prisma.packaging.delete({
