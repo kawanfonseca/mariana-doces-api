@@ -41,7 +41,6 @@ model Ingredient {
   updatedAt   DateTime @updatedAt
 
   recipeItems       RecipeItem[]
-  inventoryMovements InventoryMovement[]
 
   @@map("ingredients")
 }
@@ -55,7 +54,6 @@ model Packaging {
   updatedAt DateTime @updatedAt
 
   packagingUsages   PackagingUsage[]
-  inventoryMovements InventoryMovement[]
 
   @@map("packaging")
 }
@@ -76,7 +74,6 @@ model Product {
   laborCostPreset     LaborCostPreset?
   saleItems           SaleItem[]
   costSnapshots       CostSnapshot[]
-  inventoryMovements  InventoryMovement[]
 
   @@map("products")
 }
@@ -159,10 +156,6 @@ model InventoryMovement {
   note      String?
   date      DateTime       @default(now())
   createdAt DateTime       @default(now())
-
-  ingredient Ingredient? @relation(fields: [entityId], references: [id])
-  packaging  Packaging?  @relation(fields: [entityId], references: [id])
-  product    Product?    @relation(fields: [entityId], references: [id])
 
   @@map("inventory_movements")
 }

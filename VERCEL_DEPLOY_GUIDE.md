@@ -17,8 +17,9 @@ Foi causado porque o Vercel não suporta SQLite. Agora o projeto está configura
 1. Acesse [supabase.com](https://supabase.com)
 2. Crie uma conta e um novo projeto
 3. Vá em Settings > Database
-4. Copie a "Connection string" (URI)
-5. Formato: `postgresql://postgres:[PASSWORD]@db.[PROJECT].supabase.co:5432/postgres`
+4. Copie as duas URLs:
+   - **Connection pooling**: `postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true`
+   - **Connection string**: `postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres`
 
 **Opção B: Neon (Alternativa)**
 1. Acesse [neon.tech](https://neon.tech)
@@ -30,7 +31,8 @@ Foi causado porque o Vercel não suporta SQLite. Agora o projeto está configura
 No painel do Vercel, vá em Settings > Environment Variables e adicione:
 
 ```
-DATABASE_URL = postgresql://postgres:[PASSWORD]@db.[PROJECT].supabase.co:5432/postgres
+DATABASE_URL = postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true
+DIRECT_URL = postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres
 JWT_SECRET = sua-chave-secreta-super-longa-e-aleatoria
 IFOOD_FEE_PERCENT = 25
 NODE_ENV = production
