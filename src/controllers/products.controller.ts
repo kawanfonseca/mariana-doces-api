@@ -200,7 +200,7 @@ export const updateProductRecipe = async (req: AuthenticatedRequest, res: Respon
         await tx.recipeItem.createMany({
           data: recipeItems.map(item => ({
             ...item,
-            productId: id
+            productId: id as string
           }))
         });
       }
@@ -209,7 +209,7 @@ export const updateProductRecipe = async (req: AuthenticatedRequest, res: Respon
         await tx.packagingUsage.createMany({
           data: packagingUsages.map(usage => ({
             ...usage,
-            productId: id
+            productId: id as string
           }))
         });
       }
@@ -221,7 +221,7 @@ export const updateProductRecipe = async (req: AuthenticatedRequest, res: Respon
             minutesPerBatch: laborCostPreset.minutesPerBatch,
             batchYield: laborCostPreset.batchYield,
             laborRatePerHour: laborCostPreset.laborRatePerHour,
-            productId: id
+            productId: id as string
           }
         });
       }
@@ -255,7 +255,8 @@ export const getPricingPreview = async (req: AuthenticatedRequest, res: Response
     });
 
     if (!product) {
-      return res.status(404).json({ error: 'Produto não encontrado' });
+      res.status(404).json({ error: 'Produto não encontrado' });
+      return;
     }
 
     // Calcular custos
