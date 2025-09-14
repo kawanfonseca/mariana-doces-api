@@ -20,7 +20,7 @@
     "format": "prettier --write src/**/*.ts",
     "format:check": "prettier --check src/**/*.ts",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma generate && npx tsc"
+    "vercel-build": "prisma generate && tsc"
   },
   "keywords": [
     "confeitaria",

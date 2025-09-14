@@ -121,7 +121,7 @@ A API já está configurada para aceitar requisições dos seguintes domínios:
 - `http://localhost:3000` (desenvolvimento)
 - `http://localhost:5173` (Vite dev server)
 
-Se você precisar adicionar outros domínios, edite o arquivo `api/index.js` na lista `allowedOrigins`.
+Se você precisar adicionar outros domínios, edite o arquivo `src/server.ts` na lista `allowedOrigins`.
 
 ### 🐛 Solução de Problemas de CORS
 
@@ -131,7 +131,18 @@ Access to XMLHttpRequest at 'https://mariana-doces-api.vercel.app/api/auth/login
 from origin 'https://mariana-doces-app.vercel.app' has been blocked by CORS policy
 ```
 
-1. **Verifique se o domínio está na lista permitida** em `api/index.js`
-2. **Confirme que a variável `VITE_API_URL`** está configurada corretamente no frontend
-3. **Faça um novo deploy** da API após alterações de CORS
-4. **Teste com o endpoint `/health`** primeiro: `https://mariana-doces-api.vercel.app/health`
+**✅ SOLUÇÃO**: A API já está configurada para aceitar requisições do frontend. O problema foi resolvido com:
+
+1. **Configuração CORS atualizada** em `src/server.ts` para aceitar `https://mariana-doces-app.vercel.app`
+2. **Deploy da API** - faça um novo deploy para aplicar as mudanças
+3. **Teste o endpoint `/health`**: `https://mariana-doces-api.vercel.app/health`
+
+**🔧 Se precisar adicionar outros domínios**, edite a lista `allowedOrigins` em `src/server.ts`:
+```typescript
+const allowedOrigins = [
+  'https://mariana-doces-app.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://seu-novo-dominio.com' // Adicione aqui
+];
+```
