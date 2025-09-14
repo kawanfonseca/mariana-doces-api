@@ -29,9 +29,14 @@ CORS_ORIGIN=https://seu-frontend.vercel.app
 
 ⚠️ **IMPORTANTE**: SQLite não funciona no Vercel. Use PostgreSQL.
 
-Opções recomendadas:
+#### Opção Recomendada: Supabase
+1. Crie conta em [supabase.com](https://supabase.com)
+2. Crie novo projeto com região São Paulo
+3. Copie a string de conexão PostgreSQL
+4. Siga o guia completo em `SUPABASE_SETUP.md`
+
+#### Outras Opções:
 - **Vercel Postgres** (integração nativa)
-- **Supabase** (gratuito até certo limite)
 - **Railway** (PostgreSQL gerenciado)
 - **Neon** (PostgreSQL serverless)
 

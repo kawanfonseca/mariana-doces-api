@@ -10,6 +10,7 @@ API para sistema de gerenciamento da confeitaria Mariana Doces, desenvolvida com
 - **Prisma ORM** - ORM moderno para TypeScript/JavaScript
 - **SQLite** - Banco de dados local (desenvolvimento)
 - **PostgreSQL** - Suporte para produção
+- **Supabase** - PostgreSQL gerenciado (recomendado para produção)
 - **Zod** - Validação de schemas
 - **JWT** - Autenticação via tokens
 - **bcryptjs** - Hash de senhas
