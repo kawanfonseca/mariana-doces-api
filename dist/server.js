@@ -37,6 +37,9 @@ app.use('/api/reports', reports_routes_1.reportsRouter);
 app.use('/api/config', config_routes_1.configRouter);
 app.use('/api/import', import_routes_1.importRouter);
 app.use(error_middleware_1.errorHandler);
+app.get('/', (req, res) => {
+    res.json({ message: 'Mariana Doces API' });
+});
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });

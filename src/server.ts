@@ -67,6 +67,11 @@ app.use('/api/import', importRouter);
 app.use(errorHandler);
 
 // Health check
+app.get('/', (req, res) => {
+  res.json({ message: 'Mariana Doces API' });
+});
+
+// Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
