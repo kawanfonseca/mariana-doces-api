@@ -1,0 +1,15 @@
+src/
+*.ts
+tsconfig.json
+tsconfig.seed.json
+.env
+.env.local
+.env.example
+dev.db
+dev.db-journal
+prisma/migrations/
+README.md
+*.md
+.git/
+.gitignore
+node_modules/.cache/
