@@ -21,8 +21,9 @@ DEFAULT_LABOR_RATE_PER_HOUR=20.00
 # Server
 NODE_ENV=production
 
-# CORS (URL do frontend)
-CORS_ORIGIN=https://seu-frontend.vercel.app
+# CORS (URL do frontend) - OPCIONAL
+# A API já está configurada para aceitar mariana-doces-app.vercel.app
+CORS_ORIGIN=https://mariana-doces-app.vercel.app
 ```
 
 ### 2. Banco de Dados PostgreSQL
@@ -110,7 +111,27 @@ Após o deploy, a API estará disponível em:
 No frontend (`mariana-doces-app`), configure a variável:
 
 ```env
-VITE_API_URL=https://seu-api.vercel.app
+VITE_API_URL=https://mariana-doces-api.vercel.app
 ```
 
-E atualize as configurações de CORS na API para permitir o domínio do frontend.
+### 🔧 Configuração de CORS
+
+A API já está configurada para aceitar requisições dos seguintes domínios:
+- `https://mariana-doces-app.vercel.app` (produção)
+- `http://localhost:3000` (desenvolvimento)
+- `http://localhost:5173` (Vite dev server)
+
+Se você precisar adicionar outros domínios, edite o arquivo `api/index.js` na lista `allowedOrigins`.
+
+### 🐛 Solução de Problemas de CORS
+
+Se você receber erros de CORS como:
+```
+Access to XMLHttpRequest at 'https://mariana-doces-api.vercel.app/api/auth/login' 
+from origin 'https://mariana-doces-app.vercel.app' has been blocked by CORS policy
+```
+
+1. **Verifique se o domínio está na lista permitida** em `api/index.js`
+2. **Confirme que a variável `VITE_API_URL`** está configurada corretamente no frontend
+3. **Faça um novo deploy** da API após alterações de CORS
+4. **Teste com o endpoint `/health`** primeiro: `https://mariana-doces-api.vercel.app/health`
