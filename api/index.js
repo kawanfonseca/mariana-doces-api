@@ -56,4 +56,13 @@ app.get('/', (req, res) => {
   res.json({ message: 'Mariana Doces API', version: '1.0.0' });
 });
 
+// Para desenvolvimento local
+if (require.main === module) {
+  const port = process.env.PORT || 3001;
+  app.listen(port, () => {
+    console.log(`Servidor rodando na porta ${port}`);
+  });
+}
+
+// Para Vercel
 module.exports = app;

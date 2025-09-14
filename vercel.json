@@ -1,22 +1,4 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
-    }
-  ],
-  "functions": {
-    "api/index.js": {
-      "maxDuration": 30
-    }
-  },
-  "buildCommand": "npm ci && npm run build && npx prisma generate",
-  "installCommand": "npm ci"
+  "buildCommand": "npm run build && npx prisma generate"
 }
