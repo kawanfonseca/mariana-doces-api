@@ -9,7 +9,7 @@ export const getConfigs = async (req: AuthenticatedRequest, res: Response, next:
     });
 
     // Converter para objeto para facilitar o uso no frontend
-    const configObject = configs.reduce((acc, config) => {
+    const configObject = configs.reduce((acc: Record<string, { value: string; description?: string }>, config) => {
       acc[config.key] = {
         value: config.value,
         ...(config.description && { description: config.description })

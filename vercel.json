@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
+      "src": "api/index.js",
       "use": "@vercel/node"
     }
   ],
@@ -17,8 +17,6 @@
       "maxDuration": 30
     }
   },
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "buildCommand": "npm run build && npm run prisma:generate"
+  "buildCommand": "npm ci && npm run build && npx prisma generate",
+  "installCommand": "npm ci"
 }

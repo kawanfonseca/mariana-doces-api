@@ -85,7 +85,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
     const order = await prisma.$transaction(async (tx) => {
       // Calcular totais
       let grossAmount = 0;
-      const items = [];
+      const items: any[] = [];
 
       for (const item of orderData.items) {
         const lineGross = item.qty * item.unitPrice;

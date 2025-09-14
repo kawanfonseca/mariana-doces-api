@@ -53,7 +53,7 @@ export const importSalesCSV = async (req: AuthenticatedRequest, res: Response, n
     });
 
     const productMap = new Map<string, typeof products[0]>();
-    products.forEach(product => {
+    products.forEach((product: typeof products[0]) => {
       productMap.set(product.name.toLowerCase().trim(), product);
     });
 

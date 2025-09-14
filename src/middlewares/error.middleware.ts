@@ -22,7 +22,7 @@ export const errorHandler = (
   }
 
   // Erros do Prisma
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  if (error.code && typeof error.code === 'string') {
     switch (error.code) {
       case 'P2002':
         return res.status(409).json({
