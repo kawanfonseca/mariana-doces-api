@@ -1,6 +1,3 @@
-src/
-*.ts
-tsconfig.seed.json
 .env
 .env.local
 .env.example
