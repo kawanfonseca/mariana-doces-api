@@ -1,6 +1,5 @@
 src/
 *.ts
-tsconfig.json
 tsconfig.seed.json
 .env
 .env.local
