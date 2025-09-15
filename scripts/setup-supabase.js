@@ -35,14 +35,48 @@ if (action === 'full') {
     const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
     console.log(migrationSQL);
     
+} else if (action === 'complete') {
+    console.log('🎯 SISTEMA COMPLETO - Para implementar todas as funcionalidades de estoque:');
+    console.log('');
+    console.log('1. Acesse seu painel do Supabase');
+    console.log('2. Vá para SQL Editor');
+    console.log('3. Cole e execute o seguinte SQL:');
+    console.log('');
+    console.log('=====================================');
+
+    // Ler o arquivo do sistema completo
+    const completePath = path.join(__dirname, '..', 'migrations', 'complete_inventory_system.sql');
+    const completeSQL = fs.readFileSync(completePath, 'utf8');
+    console.log(completeSQL);
+    
+} else if (action === 'safe') {
+    console.log('🛡️ SISTEMA SEGURO - Para implementar funcionalidades de estoque sem dados de exemplo:');
+    console.log('');
+    console.log('1. Acesse seu painel do Supabase');
+    console.log('2. Vá para SQL Editor');
+    console.log('3. Cole e execute o seguinte SQL:');
+    console.log('');
+    console.log('=====================================');
+
+    // Ler o arquivo do sistema seguro
+    const safePath = path.join(__dirname, '..', 'migrations', 'complete_inventory_system_safe.sql');
+    const safeSQL = fs.readFileSync(safePath, 'utf8');
+    console.log(safeSQL);
+    
 } else {
     console.log('🎯 OPÇÕES DISPONÍVEIS:');
     console.log('');
     console.log('Para banco NOVO (setup completo):');
     console.log('  node scripts/setup-supabase.js full');
     console.log('');
-    console.log('Para banco EXISTENTE (apenas migração):');
+    console.log('Para banco EXISTENTE (migração básica):');
     console.log('  node scripts/setup-supabase.js migration');
+    console.log('');
+    console.log('Para banco EXISTENTE (sistema completo):');
+    console.log('  node scripts/setup-supabase.js complete');
+    console.log('');
+    console.log('Para banco EXISTENTE (sistema seguro - sem dados de exemplo):');
+    console.log('  node scripts/setup-supabase.js safe');
     console.log('');
     console.log('Para ver esta ajuda:');
     console.log('  node scripts/setup-supabase.js help');
