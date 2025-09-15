@@ -52,6 +52,18 @@ export const getIngredient = async (req: AuthenticatedRequest, res: Response, ne
             product: { select: { id: true, name: true } },
             variant: { select: { id: true, name: true } }
           }
+        },
+        stockMovements: {
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            type: true,
+            quantity: true,
+            reason: true,
+            date: true,
+            createdAt: true
+          }
         }
       }
     });
@@ -61,7 +73,20 @@ export const getIngredient = async (req: AuthenticatedRequest, res: Response, ne
       return;
     }
 
-    res.json(ingredient);
+    // Adicionar informações de estoque
+    const stockStatus = ingredient.currentStock <= 0 
+      ? 'OUT_OF_STOCK' 
+      : ingredient.currentStock <= ingredient.minStock 
+        ? 'LOW_STOCK' 
+        : 'OK';
+
+    const ingredientWithStock = {
+      ...ingredient,
+      stockStatus,
+      totalValue: ingredient.currentStock * ingredient.costPerUnit
+    };
+
+    res.json(ingredientWithStock);
   } catch (error) {
     next(error);
   }

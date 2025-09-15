@@ -11,6 +11,7 @@ async function main() {
   await prisma.saleItem.deleteMany();
   await prisma.saleOrder.deleteMany();
   await prisma.costSnapshot.deleteMany();
+  await prisma.stockMovement.deleteMany();
   await prisma.laborCostPreset.deleteMany();
   await prisma.packagingUsage.deleteMany();
   await prisma.recipeItem.deleteMany();
@@ -48,61 +49,145 @@ async function main() {
   await initializeDefaultConfigs();
   console.log('✅ Configurações inicializadas');
 
-  // Criar ingredientes básicos
+  // Criar ingredientes básicos com estoque inicial
   const farinha = await prisma.ingredient.create({
-    data: { name: 'Farinha de Trigo', unit: 'g', costPerUnit: 0.008 }
+    data: { 
+      name: 'Farinha de Trigo', 
+      unit: 'g', 
+      costPerUnit: 0.008,
+      currentStock: 5000,
+      minStock: 1000
+    }
   });
 
   const acucar = await prisma.ingredient.create({
-    data: { name: 'Açúcar Cristal', unit: 'g', costPerUnit: 0.006 }
+    data: { 
+      name: 'Açúcar Cristal', 
+      unit: 'g', 
+      costPerUnit: 0.006,
+      currentStock: 3000,
+      minStock: 500
+    }
   });
 
   const ovos = await prisma.ingredient.create({
-    data: { name: 'Ovos', unit: 'un', costPerUnit: 0.50 }
+    data: { 
+      name: 'Ovos', 
+      unit: 'un', 
+      costPerUnit: 0.50,
+      currentStock: 60,
+      minStock: 12
+    }
   });
 
   const manteiga = await prisma.ingredient.create({
-    data: { name: 'Manteiga', unit: 'g', costPerUnit: 0.025 }
+    data: { 
+      name: 'Manteiga', 
+      unit: 'g', 
+      costPerUnit: 0.025,
+      currentStock: 2000,
+      minStock: 500
+    }
   });
 
   const chocolate = await prisma.ingredient.create({
-    data: { name: 'Chocolate em Pó', unit: 'g', costPerUnit: 0.035 }
+    data: { 
+      name: 'Chocolate em Pó', 
+      unit: 'g', 
+      costPerUnit: 0.035,
+      currentStock: 1500,
+      minStock: 300
+    }
   });
 
   const leite = await prisma.ingredient.create({
-    data: { name: 'Leite', unit: 'ml', costPerUnit: 0.004 }
+    data: { 
+      name: 'Leite', 
+      unit: 'ml', 
+      costPerUnit: 0.004,
+      currentStock: 2000,
+      minStock: 500
+    }
   });
 
   const corante = await prisma.ingredient.create({
-    data: { name: 'Corante Alimentício', unit: 'ml', costPerUnit: 0.20 }
+    data: { 
+      name: 'Corante Alimentício', 
+      unit: 'ml', 
+      costPerUnit: 0.20,
+      currentStock: 100,
+      minStock: 20
+    }
   });
 
   const pistache = await prisma.ingredient.create({
-    data: { name: 'Pasta de Pistache', unit: 'g', costPerUnit: 0.08 }
+    data: { 
+      name: 'Pasta de Pistache', 
+      unit: 'g', 
+      costPerUnit: 0.08,
+      currentStock: 500,
+      minStock: 100
+    }
   });
 
   const nutella = await prisma.ingredient.create({
-    data: { name: 'Nutella', unit: 'g', costPerUnit: 0.045 }
+    data: { 
+      name: 'Nutella', 
+      unit: 'g', 
+      costPerUnit: 0.045,
+      currentStock: 800,
+      minStock: 200
+    }
   });
 
   const cenoura = await prisma.ingredient.create({
-    data: { name: 'Cenoura', unit: 'g', costPerUnit: 0.005 }
+    data: { 
+      name: 'Cenoura', 
+      unit: 'g', 
+      costPerUnit: 0.005,
+      currentStock: 1000,
+      minStock: 200
+    }
   });
 
   const agua = await prisma.ingredient.create({
-    data: { name: 'Água Mineral', unit: 'un', costPerUnit: 0.85 }
+    data: { 
+      name: 'Água Mineral', 
+      unit: 'un', 
+      costPerUnit: 0.85,
+      currentStock: 24,
+      minStock: 6
+    }
   });
 
   const refrigerante = await prisma.ingredient.create({
-    data: { name: 'Refrigerante', unit: 'un', costPerUnit: 2.99 }
+    data: { 
+      name: 'Refrigerante', 
+      unit: 'un', 
+      costPerUnit: 2.99,
+      currentStock: 12,
+      minStock: 6
+    }
   });
 
   const velaColorida = await prisma.ingredient.create({
-    data: { name: 'Vela Colorida', unit: 'un', costPerUnit: 0.91 }
+    data: { 
+      name: 'Vela Colorida', 
+      unit: 'un', 
+      costPerUnit: 0.91,
+      currentStock: 50,
+      minStock: 10
+    }
   });
 
   const velaMetalizada = await prisma.ingredient.create({
-    data: { name: 'Vela Metalizada', unit: 'un', costPerUnit: 1.14 }
+    data: { 
+      name: 'Vela Metalizada', 
+      unit: 'un', 
+      costPerUnit: 1.14,
+      currentStock: 30,
+      minStock: 5
+    }
   });
 
   console.log('✅ Ingredientes criados');
@@ -406,6 +491,115 @@ async function main() {
   }
 
   console.log('✅ Produtos e receitas criados');
+
+  // Criar movimentações de estoque de exemplo
+  const ingredientesParaMovimentacao = [farinha, acucar, ovos, manteiga, chocolate];
+  
+  for (const ingrediente of ingredientesParaMovimentacao) {
+    // Movimentação de entrada (compra)
+    await prisma.stockMovement.create({
+      data: {
+        ingredientId: ingrediente.id,
+        type: 'IN',
+        quantity: ingrediente.currentStock,
+        reason: 'Estoque inicial',
+        notes: 'Criação do estoque inicial do sistema',
+        date: new Date('2025-07-01')
+      }
+    });
+
+    // Algumas saídas para produção
+    if (ingrediente.name === 'Farinha de Trigo') {
+      await prisma.stockMovement.create({
+        data: {
+          ingredientId: ingrediente.id,
+          type: 'OUT',
+          quantity: 800,
+          reason: 'Produção de cookies',
+          notes: 'Lote de 48 cookies tradicionais',
+          date: new Date('2025-07-20')
+        }
+      });
+    }
+
+    if (ingrediente.name === 'Chocolate em Pó') {
+      await prisma.stockMovement.create({
+        data: {
+          ingredientId: ingrediente.id,
+          type: 'OUT',
+          quantity: 200,
+          reason: 'Produção de brownies',
+          notes: 'Lote de 12 marmitinhas de brownie',
+          date: new Date('2025-07-22')
+        }
+      });
+    }
+
+    if (ingrediente.name === 'Ovos') {
+      await prisma.stockMovement.create({
+        data: {
+          ingredientId: ingrediente.id,
+          type: 'OUT',
+          quantity: 12,
+          reason: 'Produção mista',
+          notes: 'Diversos produtos do dia',
+          date: new Date('2025-07-23')
+        }
+      });
+    }
+  }
+
+  // Criar alguns ajustes de estoque
+  await prisma.stockMovement.create({
+    data: {
+      ingredientId: corante.id,
+      type: 'ADJUSTMENT',
+      quantity: 95, // Ajuste para 95ml
+      reason: 'Contagem de estoque',
+      notes: 'Diferença encontrada na contagem mensal',
+      date: new Date('2025-07-25')
+    }
+  });
+
+  // Simular estoque baixo
+  await prisma.stockMovement.create({
+    data: {
+      ingredientId: pistache.id,
+      type: 'OUT',
+      quantity: 450,
+      reason: 'Produção especial',
+      notes: 'Grande pedido de cookies de pistache',
+      date: new Date('2025-07-26')
+    }
+  });
+
+  // Atualizar estoques dos ingredientes baseado nas movimentações
+  await prisma.ingredient.update({
+    where: { id: farinha.id },
+    data: { currentStock: 5000 - 800 } // 4200g
+  });
+
+  await prisma.ingredient.update({
+    where: { id: chocolate.id },
+    data: { currentStock: 1500 - 200 } // 1300g
+  });
+
+  await prisma.ingredient.update({
+    where: { id: ovos.id },
+    data: { currentStock: 60 - 12 } // 48 ovos
+  });
+
+  await prisma.ingredient.update({
+    where: { id: corante.id },
+    data: { currentStock: 95 } // Ajuste para 95ml
+  });
+
+  await prisma.ingredient.update({
+    where: { id: pistache.id },
+    data: { currentStock: 500 - 450 } // 50g (estoque baixo)
+  });
+
+  console.log('✅ Movimentações de estoque criadas');
 
   // Criar vendas de exemplo
   const cookiesTradicional = await prisma.product.findFirst({ where: { name: 'Cookies Tradicional' } });

@@ -30,6 +30,8 @@ export interface CreateIngredientDto {
   unit: string;
   costPerUnit: number;
   supplier?: string;
+  currentStock?: number;
+  minStock?: number;
 }
 
 export interface UpdateIngredientDto extends Partial<CreateIngredientDto> {
@@ -163,4 +165,73 @@ export interface CsvImportResult {
   processedRows: number;
   errors: string[];
   orderId?: string;
+}
+
+// Tipos para movimentação de estoque
+export type StockMovementType = 'IN' | 'OUT' | 'ADJUSTMENT';
+
+export interface CreateStockMovementDto {
+  ingredientId: string;
+  type: StockMovementType;
+  quantity: number;
+  reason: string;
+  notes?: string;
+  date?: string;
+}
+
+export interface StockMovementDto extends CreateStockMovementDto {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  ingredient?: {
+    id: string;
+    name: string;
+    unit: string;
+  };
+}
+
+// Tipos para análise de estoque
+export interface InventoryStatusDto {
+  total: number;
+  lowStock: number;
+  outOfStock: number;
+  totalValue: number;
+  ingredients: IngredientStockDto[];
+}
+
+export interface IngredientStockDto {
+  id: string;
+  name: string;
+  unit: string;
+  currentStock: number;
+  minStock: number;
+  costPerUnit: number;
+  totalValue: number;
+  stockStatus: 'OK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+}
+
+export interface StockAlertDto {
+  id: string;
+  name: string;
+  unit: string;
+  currentStock: number;
+  minStock: number;
+  alertType: 'LOW_STOCK' | 'OUT_OF_STOCK';
+  message: string;
+}
+
+// Tipos para análise de custos
+export interface ProductCostAnalysisDto {
+  productId: string;
+  productName: string;
+  ingredientsCost: number;
+  packagingCost: number;
+  laborCost: number;
+  totalCost: number;
+  sellingPriceDirect?: number;
+  sellingPriceIFood?: number;
+  profitDirect: number;
+  profitIFood: number;
+  marginDirect: number;
+  marginIFood: number;
 }

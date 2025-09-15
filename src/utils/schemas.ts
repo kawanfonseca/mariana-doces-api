@@ -19,7 +19,9 @@ export const createIngredientSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   unit: z.string().min(1, 'Unidade é obrigatória'),
   costPerUnit: z.number().positive('Custo deve ser positivo'),
-  supplier: z.string().optional()
+  supplier: z.string().optional(),
+  currentStock: z.number().min(0, 'Estoque atual deve ser positivo').optional(),
+  minStock: z.number().min(0, 'Estoque mínimo deve ser positivo').optional()
 });
 
 export const updateIngredientSchema = createIngredientSchema.partial().extend({
@@ -126,4 +128,16 @@ export const dateRangeSchema = z.object({
 
 export const idParamSchema = z.object({
   id: z.string().cuid('ID inválido')
+});
+
+// Stock movement schemas
+export const createStockMovementSchema = z.object({
+  ingredientId: z.string().cuid('ID do ingrediente inválido'),
+  type: z.enum(['IN', 'OUT', 'ADJUSTMENT'], {
+    errorMap: () => ({ message: 'Tipo deve ser IN, OUT ou ADJUSTMENT' })
+  }),
+  quantity: z.number().positive('Quantidade deve ser positiva'),
+  reason: z.string().min(1, 'Motivo é obrigatório'),
+  notes: z.string().optional(),
+  date: z.string().refine(date => !isNaN(Date.parse(date)), 'Data inválida').optional()
 });

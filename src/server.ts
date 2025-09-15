@@ -10,6 +10,8 @@ import { ordersRouter } from './routes/orders.routes';
 import { reportsRouter } from './routes/reports.routes';
 import { configRouter } from './routes/config.routes';
 import { importRouter } from './routes/import.routes';
+import stockRouter from './routes/stock.routes';
+import recipesRouter from './routes/recipes.routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { authMiddleware } from './middlewares/auth.middleware';
 
@@ -62,6 +64,8 @@ app.use('/api/orders', ordersRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/config', configRouter);
 app.use('/api/import', importRouter);
+app.use('/api/stock', stockRouter);
+app.use('/api/recipes', recipesRouter);
 
 // Middleware de tratamento de erros
 app.use(errorHandler);

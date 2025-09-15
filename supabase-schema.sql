@@ -30,6 +30,8 @@ CREATE TABLE ingredients (
     unit TEXT NOT NULL,
     "costPerUnit" DECIMAL(10,2) NOT NULL,
     supplier TEXT,
+    "currentStock" DECIMAL(10,3) DEFAULT 0,
+    "minStock" DECIMAL(10,3) DEFAULT 0,
     active BOOLEAN DEFAULT true,
     "createdAt" TIMESTAMP DEFAULT NOW(),
     "updatedAt" TIMESTAMP DEFAULT NOW()
@@ -112,7 +114,21 @@ CREATE TABLE labor_cost_presets (
     FOREIGN KEY ("productId") REFERENCES products(id) ON DELETE CASCADE
 );
 
--- Tabela de movimentações de estoque
+-- Tabela de movimentações de estoque de ingredientes
+CREATE TABLE stock_movements (
+    id TEXT PRIMARY KEY DEFAULT generate_cuid(),
+    "ingredientId" TEXT NOT NULL,
+    type TEXT NOT NULL, -- 'IN', 'OUT', 'ADJUSTMENT'
+    quantity DECIMAL(10,3) NOT NULL,
+    reason TEXT NOT NULL,
+    notes TEXT,
+    date TIMESTAMP DEFAULT NOW(),
+    "createdAt" TIMESTAMP DEFAULT NOW(),
+    "updatedAt" TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY ("ingredientId") REFERENCES ingredients(id) ON DELETE CASCADE
+);
+
+-- Tabela de movimentações de estoque (genérica - mantida para compatibilidade)
 CREATE TABLE inventory_movements (
     id TEXT PRIMARY KEY DEFAULT generate_cuid(),
     type TEXT NOT NULL,
@@ -123,10 +139,7 @@ CREATE TABLE inventory_movements (
     "unitCost" DECIMAL(10,2),
     note TEXT,
     date TIMESTAMP DEFAULT NOW(),
-    "createdAt" TIMESTAMP DEFAULT NOW(),
-    FOREIGN KEY ("entityId") REFERENCES ingredients(id),
-    FOREIGN KEY ("entityId") REFERENCES packaging(id),
-    FOREIGN KEY ("entityId") REFERENCES products(id)
+    "createdAt" TIMESTAMP DEFAULT NOW()
 );
 
 -- Tabela de pedidos de venda
@@ -203,10 +216,14 @@ CREATE TABLE config (
 
 -- Índices para melhor performance
 CREATE INDEX idx_ingredients_name ON ingredients(name);
+CREATE INDEX idx_ingredients_stock ON ingredients("currentStock");
 CREATE INDEX idx_packaging_name ON packaging(name);
 CREATE INDEX idx_products_name ON products(name);
 CREATE INDEX idx_sale_orders_date ON sale_orders(date);
 CREATE INDEX idx_sale_orders_channel ON sale_orders(channel);
+CREATE INDEX idx_stock_movements_ingredient ON stock_movements("ingredientId");
+CREATE INDEX idx_stock_movements_type ON stock_movements(type);
+CREATE INDEX idx_stock_movements_date ON stock_movements(date);
 CREATE INDEX idx_inventory_movements_entity ON inventory_movements(entity, "entityId");
 CREATE INDEX idx_recipe_items_product ON recipe_items("productId");
 CREATE INDEX idx_recipe_items_variant ON recipe_items("variantId");
@@ -231,6 +248,7 @@ CREATE TRIGGER update_product_variants_updated_at BEFORE UPDATE ON product_varia
 CREATE TRIGGER update_recipe_items_updated_at BEFORE UPDATE ON recipe_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_packaging_usage_updated_at BEFORE UPDATE ON packaging_usage FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_labor_cost_presets_updated_at BEFORE UPDATE ON labor_cost_presets FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_stock_movements_updated_at BEFORE UPDATE ON stock_movements FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_sale_orders_updated_at BEFORE UPDATE ON sale_orders FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_promotions_updated_at BEFORE UPDATE ON promotions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_config_updated_at BEFORE UPDATE ON config FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
