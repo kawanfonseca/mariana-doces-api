@@ -8,7 +8,8 @@ export const bulkStockAdjustment = async (req: AuthenticatedRequest, res: Respon
     const { adjustments, reason, notes } = req.body;
 
     if (!adjustments || !Array.isArray(adjustments) || adjustments.length === 0) {
-      return res.status(400).json({ error: 'Lista de ajustes é obrigatória' });
+      res.status(400).json({ error: 'Lista de ajustes é obrigatória' });
+      return;
     }
 
     const results = await prisma.$transaction(async (tx) => {
@@ -74,15 +75,17 @@ export const transferStock = async (req: AuthenticatedRequest, res: Response, ne
     const { fromIngredientId, toIngredientId, quantity, reason, notes } = req.body;
 
     if (!fromIngredientId || !toIngredientId || !quantity) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Ingrediente origem, destino e quantidade são obrigatórios' 
       });
+      return;
     }
 
     if (fromIngredientId === toIngredientId) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Ingrediente origem e destino devem ser diferentes' 
       });
+      return;
     }
 
     const result = await prisma.$transaction(async (tx) => {
@@ -167,9 +170,10 @@ export const consumeIngredientsForProduction = async (req: AuthenticatedRequest,
     const { productId, quantity, reason, notes } = req.body;
 
     if (!productId || !quantity) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Produto e quantidade são obrigatórios' 
       });
+      return;
     }
 
     const result = await prisma.$transaction(async (tx) => {

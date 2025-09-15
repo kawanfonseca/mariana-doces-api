@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.idParamSchema = exports.dateRangeSchema = exports.paginationSchema = exports.configSchema = exports.inventoryMovementSchema = exports.createSaleOrderSchema = exports.saleItemSchema = exports.productRecipeSchema = exports.laborCostPresetSchema = exports.packagingUsageSchema = exports.recipeItemSchema = exports.updateProductSchema = exports.createProductSchema = exports.updatePackagingSchema = exports.createPackagingSchema = exports.updateIngredientSchema = exports.createIngredientSchema = exports.createUserSchema = exports.loginSchema = void 0;
+exports.createStockMovementSchema = exports.idParamSchema = exports.dateRangeSchema = exports.paginationSchema = exports.configSchema = exports.inventoryMovementSchema = exports.createSaleOrderSchema = exports.saleItemSchema = exports.productRecipeSchema = exports.laborCostPresetSchema = exports.packagingUsageSchema = exports.recipeItemSchema = exports.updateProductSchema = exports.createProductSchema = exports.updatePackagingSchema = exports.createPackagingSchema = exports.updateIngredientSchema = exports.createIngredientSchema = exports.createUserSchema = exports.loginSchema = void 0;
 const zod_1 = require("zod");
 exports.loginSchema = zod_1.z.object({
     email: zod_1.z.string().email('Email inválido'),
@@ -16,7 +16,9 @@ exports.createIngredientSchema = zod_1.z.object({
     name: zod_1.z.string().min(1, 'Nome é obrigatório'),
     unit: zod_1.z.string().min(1, 'Unidade é obrigatória'),
     costPerUnit: zod_1.z.number().positive('Custo deve ser positivo'),
-    supplier: zod_1.z.string().optional()
+    supplier: zod_1.z.string().optional(),
+    currentStock: zod_1.z.number().min(0, 'Estoque atual deve ser positivo').optional(),
+    minStock: zod_1.z.number().min(0, 'Estoque mínimo deve ser positivo').optional()
 });
 exports.updateIngredientSchema = exports.createIngredientSchema.partial().extend({
     active: zod_1.z.boolean().optional()
@@ -100,5 +102,15 @@ exports.dateRangeSchema = zod_1.z.object({
 });
 exports.idParamSchema = zod_1.z.object({
     id: zod_1.z.string().cuid('ID inválido')
+});
+exports.createStockMovementSchema = zod_1.z.object({
+    ingredientId: zod_1.z.string().cuid('ID do ingrediente inválido'),
+    type: zod_1.z.enum(['IN', 'OUT', 'ADJUSTMENT'], {
+        errorMap: () => ({ message: 'Tipo deve ser IN, OUT ou ADJUSTMENT' })
+    }),
+    quantity: zod_1.z.number().positive('Quantidade deve ser positiva'),
+    reason: zod_1.z.string().min(1, 'Motivo é obrigatório'),
+    notes: zod_1.z.string().optional(),
+    date: zod_1.z.string().refine(date => !isNaN(Date.parse(date)), 'Data inválida').optional()
 });
 //# sourceMappingURL=schemas.js.map

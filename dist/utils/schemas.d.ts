@@ -30,22 +30,30 @@ export declare const createIngredientSchema: z.ZodObject<{
     unit: z.ZodString;
     costPerUnit: z.ZodNumber;
     supplier: z.ZodOptional<z.ZodString>;
+    currentStock: z.ZodOptional<z.ZodNumber>;
+    minStock: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     name: string;
     unit: string;
     costPerUnit: number;
     supplier?: string | undefined;
+    currentStock?: number | undefined;
+    minStock?: number | undefined;
 }, {
     name: string;
     unit: string;
     costPerUnit: number;
     supplier?: string | undefined;
+    currentStock?: number | undefined;
+    minStock?: number | undefined;
 }>;
 export declare const updateIngredientSchema: z.ZodObject<{
     name: z.ZodOptional<z.ZodString>;
     unit: z.ZodOptional<z.ZodString>;
     costPerUnit: z.ZodOptional<z.ZodNumber>;
     supplier: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+    currentStock: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
+    minStock: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
 } & {
     active: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
@@ -54,12 +62,16 @@ export declare const updateIngredientSchema: z.ZodObject<{
     unit?: string | undefined;
     costPerUnit?: number | undefined;
     supplier?: string | undefined;
+    currentStock?: number | undefined;
+    minStock?: number | undefined;
 }, {
     name?: string | undefined;
     active?: boolean | undefined;
     unit?: string | undefined;
     costPerUnit?: number | undefined;
     supplier?: string | undefined;
+    currentStock?: number | undefined;
+    minStock?: number | undefined;
 }>;
 export declare const createPackagingSchema: z.ZodObject<{
     name: z.ZodString;
@@ -295,8 +307,8 @@ export declare const createSaleOrderSchema: z.ZodObject<{
         productId?: string | undefined;
         variantId?: string | undefined;
     }[];
-    discounts?: number | undefined;
     notes?: string | undefined;
+    discounts?: number | undefined;
     customerName?: string | undefined;
     customerPhone?: string | undefined;
 }, {
@@ -308,8 +320,8 @@ export declare const createSaleOrderSchema: z.ZodObject<{
         productId?: string | undefined;
         variantId?: string | undefined;
     }[];
-    discounts?: number | undefined;
     notes?: string | undefined;
+    discounts?: number | undefined;
     customerName?: string | undefined;
     customerPhone?: string | undefined;
 }>;
@@ -328,18 +340,18 @@ export declare const inventoryMovementSchema: z.ZodObject<{
     type: "IN" | "OUT" | "ADJUST";
     entity: "INGREDIENT" | "PACKAGING" | "PRODUCT";
     entityId: string;
+    date?: string | undefined;
     unitCost?: number | undefined;
     note?: string | undefined;
-    date?: string | undefined;
 }, {
     unit: string;
     qty: number;
     type: "IN" | "OUT" | "ADJUST";
     entity: "INGREDIENT" | "PACKAGING" | "PRODUCT";
     entityId: string;
+    date?: string | undefined;
     unitCost?: number | undefined;
     note?: string | undefined;
-    date?: string | undefined;
 }>;
 export declare const configSchema: z.ZodObject<{
     key: z.ZodString;
@@ -386,5 +398,27 @@ export declare const idParamSchema: z.ZodObject<{
     id: string;
 }, {
     id: string;
+}>;
+export declare const createStockMovementSchema: z.ZodObject<{
+    ingredientId: z.ZodString;
+    type: z.ZodEnum<["IN", "OUT", "ADJUSTMENT"]>;
+    quantity: z.ZodNumber;
+    reason: z.ZodString;
+    notes: z.ZodOptional<z.ZodString>;
+    date: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+}, "strip", z.ZodTypeAny, {
+    ingredientId: string;
+    type: "IN" | "OUT" | "ADJUSTMENT";
+    quantity: number;
+    reason: string;
+    notes?: string | undefined;
+    date?: string | undefined;
+}, {
+    ingredientId: string;
+    type: "IN" | "OUT" | "ADJUSTMENT";
+    quantity: number;
+    reason: string;
+    notes?: string | undefined;
+    date?: string | undefined;
 }>;
 //# sourceMappingURL=schemas.d.ts.map

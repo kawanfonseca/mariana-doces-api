@@ -72,7 +72,7 @@ export const getStockMovement = async (req: AuthenticatedRequest, res: Response,
   }
 };
 
-export const createStockMovement = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const createStockMovement = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const data: CreateStockMovementDto = req.body;
 
@@ -82,15 +82,17 @@ export const createStockMovement = async (req: AuthenticatedRequest, res: Respon
     });
 
     if (!ingredient) {
-      return res.status(404).json({ error: 'Ingrediente não encontrado' });
+      res.status(404).json({ error: 'Ingrediente não encontrado' });
+      return;
     }
 
     // Verificar estoque para saídas
     if (data.type === 'OUT' && ingredient.currentStock < data.quantity) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Estoque insuficiente',
         details: `Estoque atual: ${ingredient.currentStock} ${ingredient.unit}`
       });
+      return;
     }
 
     // Usar transação para garantir consistência

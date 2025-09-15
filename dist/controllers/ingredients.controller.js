@@ -49,6 +49,18 @@ const getIngredient = async (req, res, next) => {
                         product: { select: { id: true, name: true } },
                         variant: { select: { id: true, name: true } }
                     }
+                },
+                stockMovements: {
+                    take: 10,
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        type: true,
+                        quantity: true,
+                        reason: true,
+                        date: true,
+                        createdAt: true
+                    }
                 }
             }
         });
@@ -56,7 +68,17 @@ const getIngredient = async (req, res, next) => {
             res.status(404).json({ error: 'Ingrediente não encontrado' });
             return;
         }
-        res.json(ingredient);
+        const stockStatus = ingredient.currentStock <= 0
+            ? 'OUT_OF_STOCK'
+            : ingredient.currentStock <= ingredient.minStock
+                ? 'LOW_STOCK'
+                : 'OK';
+        const ingredientWithStock = {
+            ...ingredient,
+            stockStatus,
+            totalValue: ingredient.currentStock * ingredient.costPerUnit
+        };
+        res.json(ingredientWithStock);
     }
     catch (error) {
         next(error);

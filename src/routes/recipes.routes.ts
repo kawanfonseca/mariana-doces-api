@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middlewares/auth.middleware';
-import { validateQuery } from '../middlewares/validation.middleware';
+import { validateRequest } from '../middlewares/validation.middleware';
 import { productRecipeSchema, idParamSchema } from '../utils/schemas';
 import {
   getProductRecipe,
