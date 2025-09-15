@@ -137,7 +137,7 @@ export const updateProductRecipe = async (req: AuthenticatedRequest, res: Respon
       if (laborCostPreset) {
         await tx.laborCostPreset.create({
           data: {
-            productId,
+            productId: productId!,
             name: laborCostPreset.name,
             minutesPerBatch: laborCostPreset.minutesPerBatch,
             batchYield: laborCostPreset.batchYield,

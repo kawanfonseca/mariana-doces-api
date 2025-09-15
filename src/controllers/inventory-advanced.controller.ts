@@ -3,7 +3,7 @@ import { prisma } from '../services/database';
 import { AuthenticatedRequest } from '../types';
 
 // Ajuste de estoque em lote
-export const bulkStockAdjustment = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const bulkStockAdjustment = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { adjustments, reason, notes } = req.body;
 
@@ -69,7 +69,7 @@ export const bulkStockAdjustment = async (req: AuthenticatedRequest, res: Respon
 };
 
 // Transferência de estoque entre ingredientes
-export const transferStock = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const transferStock = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { fromIngredientId, toIngredientId, quantity, reason, notes } = req.body;
 
@@ -162,7 +162,7 @@ export const transferStock = async (req: AuthenticatedRequest, res: Response, ne
 };
 
 // Consumo automático baseado em receitas
-export const consumeIngredientsForProduction = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const consumeIngredientsForProduction = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { productId, quantity, reason, notes } = req.body;
 
