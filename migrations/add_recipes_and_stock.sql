@@ -39,8 +39,17 @@ CREATE INDEX IF NOT EXISTS idx_stock_movements_type ON stock_movements(type);
 CREATE INDEX IF NOT EXISTS idx_stock_movements_date ON stock_movements(date);
 
 -- =====================================================
--- 4. CRIAR TRIGGER PARA ATUALIZAR updatedAt
+-- 4. CRIAR FUNÇÃO E TRIGGER PARA ATUALIZAR updatedAt
 -- =====================================================
+
+-- Criar função para atualizar updatedAt (se não existir)
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW."updatedAt" = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
 
 -- Remover trigger se existir e recriar
 DROP TRIGGER IF EXISTS update_stock_movements_updated_at ON stock_movements;

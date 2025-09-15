@@ -5,10 +5,14 @@
 -- ATENÇÃO: Isso irá APAGAR TODOS os dados de estoque e movimentações!
 
 -- =====================================================
--- 1. REMOVER TRIGGER
+-- 1. REMOVER TRIGGER E FUNÇÃO
 -- =====================================================
 
 DROP TRIGGER IF EXISTS update_stock_movements_updated_at ON stock_movements;
+
+-- Nota: A função update_updated_at_column() pode estar sendo usada por outras tabelas
+-- Descomente a linha abaixo APENAS se tiver certeza de que não está sendo usada em outros lugares
+-- DROP FUNCTION IF EXISTS update_updated_at_column();
 
 -- =====================================================
 -- 2. REMOVER ÍNDICES
