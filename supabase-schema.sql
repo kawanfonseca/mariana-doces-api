@@ -236,11 +236,11 @@ CREATE TRIGGER update_promotions_updated_at BEFORE UPDATE ON promotions FOR EACH
 CREATE TRIGGER update_config_updated_at BEFORE UPDATE ON config FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Inserir usuário admin inicial
--- Senha: admin123 (hash bcrypt)
+-- Senha: admin123 (hash bcrypt correto)
 INSERT INTO users (id, email, password, name, role, active) VALUES (
     'admin-001',
     'admin@marianaDoces.com',
-    '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- admin123
+    '$2a$12$oCQ0Kt/edb1FobSITO9AnuK6lccKjZbCtmf.IKVlw3Xy2KcT4qQhm', -- admin123
     'Administrador',
     'ADMIN',
     true
