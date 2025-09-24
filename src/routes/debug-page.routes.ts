@@ -8,6 +8,11 @@ debugPageRouter.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../../test-debug.html'));
 });
 
+// Servir a página de gerenciamento de usuários
+debugPageRouter.get('/users', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../user-management.html'));
+});
+
 // Endpoint para obter o HTML da página de debug
 debugPageRouter.get('/html', (req, res) => {
   res.json({

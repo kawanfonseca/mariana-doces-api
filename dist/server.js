@@ -20,6 +20,8 @@ const recipes_routes_1 = __importDefault(require("./routes/recipes.routes"));
 const inventory_reports_routes_1 = __importDefault(require("./routes/inventory-reports.routes"));
 const inventory_advanced_routes_1 = __importDefault(require("./routes/inventory-advanced.routes"));
 const debug_routes_1 = require("./routes/debug.routes");
+const debug_page_routes_1 = require("./routes/debug-page.routes");
+const users_routes_1 = require("./routes/users.routes");
 const error_middleware_1 = require("./middlewares/error.middleware");
 const auth_middleware_1 = require("./middlewares/auth.middleware");
 dotenv_1.default.config();
@@ -49,7 +51,9 @@ app.use((0, cors_1.default)({
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use('/api/auth', auth_routes_1.authRouter);
+app.use('/api/users', users_routes_1.usersRouter);
 app.use('/api/debug', debug_routes_1.debugRouter);
+app.use('/api/debug-page', debug_page_routes_1.debugPageRouter);
 app.use('/api', auth_middleware_1.authMiddleware);
 app.use('/api/ingredients', ingredients_routes_1.ingredientsRouter);
 app.use('/api/packaging', packaging_routes_1.packagingRouter);
