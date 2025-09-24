@@ -14,6 +14,7 @@ import stockRouter from './routes/stock.routes';
 import recipesRouter from './routes/recipes.routes';
 import inventoryReportsRouter from './routes/inventory-reports.routes';
 import inventoryAdvancedRouter from './routes/inventory-advanced.routes';
+import { debugRouter } from './routes/debug.routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { authMiddleware } from './middlewares/auth.middleware';
 
@@ -54,6 +55,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rotas públicas
 app.use('/api/auth', authRouter);
+app.use('/api/debug', debugRouter);
 
 // Middleware de autenticação para rotas protegidas
 app.use('/api', authMiddleware);

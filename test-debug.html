@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Login - Mariana Doces API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .info { border-left: 4px solid #17a2b8; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Login - Mariana Doces API</h1>
+    
+    <div class="container">
+        <h2>Configuração</h2>
+        <div class="form-group">
+            <label for="apiUrl">URL da API:</label>
+            <input type="text" id="apiUrl" value="http://localhost:3001" placeholder="http://localhost:3001">
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Teste de Ambiente</h2>
+        <button onclick="testEnvironment()">🔧 Testar Ambiente</button>
+        <button onclick="testDatabase()">🗄️ Testar Banco de Dados</button>
+        <div id="environmentResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="container">
+        <h2>Debug de Login</h2>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="admin@marianaDoces.com" placeholder="admin@marianaDoces.com">
+        </div>
+        <div class="form-group">
+            <label for="password">Senha:</label>
+            <input type="password" id="password" value="admin123" placeholder="admin123">
+        </div>
+        <button onclick="debugLogin()">🔍 Debug Login</button>
+        <button onclick="testLogin()">🔐 Testar Login Real</button>
+        <div id="loginResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="container">
+        <h2>Logs do Console</h2>
+        <button onclick="clearLogs()">🗑️ Limpar Logs</button>
+        <div id="consoleLogs" class="result info"></div>
+    </div>
+
+    <script>
+        const API_URL = document.getElementById('apiUrl');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const environmentResult = document.getElementById('environmentResult');
+        const loginResult = document.getElementById('loginResult');
+        const consoleLogs = document.getElementById('consoleLogs');
+
+        // Interceptar console.log para mostrar na página
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsoleLogs('LOG', args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsoleLogs('ERROR', args.join(' '));
+        };
+
+        function addToConsoleLogs(type, message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type}: ${message}\n`;
+            consoleLogs.textContent += logEntry;
+            consoleLogs.scrollTop = consoleLogs.scrollHeight;
+        }
+
+        function clearLogs() {
+            consoleLogs.textContent = '';
+        }
+
+        async function testEnvironment() {
+            try {
+                console.log('🔧 Testando ambiente...');
+                const response = await fetch(`${API_URL.value}/api/debug/environment`);
+                const data = await response.json();
+                
+                environmentResult.style.display = 'block';
+                environmentResult.className = 'result success';
+                environmentResult.textContent = JSON.stringify(data, null, 2);
+                
+                console.log('✅ Ambiente testado:', data);
+            } catch (error) {
+                environmentResult.style.display = 'block';
+                environmentResult.className = 'result error';
+                environmentResult.textContent = `Erro: ${error.message}`;
+                console.error('❌ Erro ao testar ambiente:', error);
+            }
+        }
+
+        async function testDatabase() {
+            try {
+                console.log('🗄️ Testando banco de dados...');
+                const response = await fetch(`${API_URL.value}/api/debug/database`);
+                const data = await response.json();
+                
+                environmentResult.style.display = 'block';
+                environmentResult.className = 'result ' + (data.success ? 'success' : 'error');
+                environmentResult.textContent = JSON.stringify(data, null, 2);
+                
+                console.log('✅ Banco testado:', data);
+            } catch (error) {
+                environmentResult.style.display = 'block';
+                environmentResult.className = 'result error';
+                environmentResult.textContent = `Erro: ${error.message}`;
+                console.error('❌ Erro ao testar banco:', error);
+            }
+        }
+
+        async function debugLogin() {
+            try {
+                console.log('🔍 Iniciando debug de login...');
+                const response = await fetch(`${API_URL.value}/api/debug/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: emailInput.value,
+                        password: passwordInput.value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                loginResult.style.display = 'block';
+                loginResult.className = 'result ' + (data.success ? 'success' : 'error');
+                loginResult.textContent = JSON.stringify(data, null, 2);
+                
+                console.log('✅ Debug de login concluído:', data);
+            } catch (error) {
+                loginResult.style.display = 'block';
+                loginResult.className = 'result error';
+                loginResult.textContent = `Erro: ${error.message}`;
+                console.error('❌ Erro no debug de login:', error);
+            }
+        }
+
+        async function testLogin() {
+            try {
+                console.log('🔐 Testando login real...');
+                const response = await fetch(`${API_URL.value}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: emailInput.value,
+                        password: passwordInput.value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                loginResult.style.display = 'block';
+                loginResult.className = 'result ' + (response.ok ? 'success' : 'error');
+                loginResult.textContent = `Status: ${response.status}\n\n${JSON.stringify(data, null, 2)}`;
+                
+                if (response.ok) {
+                    console.log('✅ Login realizado com sucesso:', data);
+                } else {
+                    console.error('❌ Falha no login:', data);
+                }
+            } catch (error) {
+                loginResult.style.display = 'block';
+                loginResult.className = 'result error';
+                loginResult.textContent = `Erro: ${error.message}`;
+                console.error('❌ Erro no login:', error);
+            }
+        }
+
+        // Testar ambiente automaticamente ao carregar
+        window.onload = function() {
+            console.log('🚀 Página de debug carregada');
+            testEnvironment();
+        };
+    </script>
+</body>
+</html>
