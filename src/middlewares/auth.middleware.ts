@@ -4,26 +4,17 @@ import { AuthenticatedRequest } from '../types';
 
 export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   try {
-    const authHeader = req.headers.authorization;
+    // Usuário padrão sempre logado
+    req.user = {
+      id: '671dd650-0eab-4909-8d15-e356c8c5cac0',
+      email: 'kawanfonseca@hotmail.com',
+      role: 'ADMIN'
+    };
     
-    if (!authHeader) {
-      res.status(401).json({ error: 'Token de autorização não fornecido' });
-      return;
-    }
-
-    const token = authHeader.split(' ')[1]; // Bearer <token>
-    
-    if (!token) {
-      res.status(401).json({ error: 'Token inválido' });
-      return;
-    }
-
-    const decoded = verifyToken(token);
-    req.user = decoded;
-    
+    console.log('🔐 [AUTH] Usuário padrão logado:', req.user.email);
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Token inválido ou expirado' });
+    res.status(401).json({ error: 'Erro de autenticação' });
   }
 };
 

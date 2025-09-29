@@ -6,52 +6,24 @@ import { CreateUserDto, LoginDto, UserRole } from '../types';
 
 export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    console.log('🔐 [LOGIN] Iniciando processo de login...');
-    console.log('🔐 [LOGIN] Body recebido:', req.body);
+    console.log('🔐 [LOGIN] Login automático - usuário padrão');
     
-    const { email, password }: LoginDto = req.body;
-    
-    console.log('🔐 [LOGIN] Email:', email);
-    console.log('🔐 [LOGIN] Password presente:', !!password);
-
-    // Buscar usuário
-    console.log('🔐 [LOGIN] Buscando usuário no banco...');
-    const user = await prisma.user.findUnique({
-      where: { email, active: true }
-    });
-
-    console.log('🔐 [LOGIN] Usuário encontrado:', !!user);
-    if (user) {
-      console.log('🔐 [LOGIN] Usuário ativo:', user.active);
-      console.log('🔐 [LOGIN] Role do usuário:', user.role);
-    }
-
-    if (!user) {
-      console.log('❌ [LOGIN] Usuário não encontrado ou inativo');
-      res.status(401).json({ error: 'Credenciais inválidas' });
-      return;
-    }
-
-    // Verificar senha
-    console.log('🔐 [LOGIN] Verificando senha...');
-    const isValidPassword = await comparePassword(password, user.password);
-    console.log('🔐 [LOGIN] Senha válida:', isValidPassword);
-    
-    if (!isValidPassword) {
-      console.log('❌ [LOGIN] Senha inválida');
-      res.status(401).json({ error: 'Credenciais inválidas' });
-      return;
-    }
+    // Sempre retornar sucesso com usuário padrão
+    const user = {
+      id: '671dd650-0eab-4909-8d15-e356c8c5cac0',
+      email: 'kawanfonseca@hotmail.com',
+      name: 'Kawan Fonseca',
+      role: 'ADMIN'
+    };
 
     // Gerar token
-    console.log('🔐 [LOGIN] Gerando token...');
     const token = generateToken({
       id: user.id,
       email: user.email,
       role: user.role as UserRole
     });
     
-    console.log('✅ [LOGIN] Login realizado com sucesso para:', user.email);
+    console.log('✅ [LOGIN] Login automático realizado para:', user.email);
 
     res.json({
       token,
