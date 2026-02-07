@@ -1,10 +1,13 @@
 import { Response, NextFunction } from 'express';
 import { prisma } from '../services/database';
 import { AuthenticatedRequest, CreateSaleOrderDto } from '../types';
+import { calculateProductCost } from '../utils/pricing';
 
 export const getOrders = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const { page = 1, limit = 20, dateFrom, dateTo, channel } = req.query as any;
+    const { dateFrom, dateTo, channel } = req.query as any;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 20), 100);
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -81,7 +84,17 @@ export const getOrder = async (req: AuthenticatedRequest, res: Response, next: N
 export const createOrder = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const orderData: CreateSaleOrderDto = req.body;
-    const iFoodFeePercent = parseFloat(process.env.IFOOD_FEE_PERCENT || '25');
+
+    // Buscar taxa iFood da tabela Config, com fallback para env var
+    let iFoodFeePercent = parseFloat(process.env.IFOOD_FEE_PERCENT || '25');
+    try {
+      const config = await prisma.config.findUnique({ where: { key: 'IFOOD_FEE_PERCENT' } });
+      if (config) {
+        iFoodFeePercent = parseFloat(config.value) || iFoodFeePercent;
+      }
+    } catch {
+      // Usa fallback do env var
+    }
 
     const order = await prisma.$transaction(async (tx) => {
       // Calcular totais
@@ -124,42 +137,17 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
           });
 
           if (product) {
-            // Calcular custo unitário
-            let unitCost = 0;
-            
-            // Custo dos ingredientes
-            product.recipeItems.forEach(recipeItem => {
-              const wasteFactor = 1 + (recipeItem.wastePct || 0) / 100;
-              unitCost += recipeItem.qty * recipeItem.ingredient.costPerUnit * wasteFactor;
-            });
+            const costs = calculateProductCost(product);
+            totalCosts += costs.totalUnitCost * item.qty;
 
-            // Custo das embalagens
-            product.packagingUsages.forEach(usage => {
-              unitCost += usage.qty * usage.packaging.unitCost;
-            });
-
-            // Custo da mão de obra
-            if (product.laborCostPreset) {
-              const hoursPerBatch = product.laborCostPreset.minutesPerBatch / 60;
-              const laborCostPerUnit = (hoursPerBatch * product.laborCostPreset.laborRatePerHour) / product.laborCostPreset.batchYield;
-              unitCost += laborCostPerUnit;
-            }
-
-            totalCosts += unitCost * item.qty;
-
-            // Salvar snapshot do custo
             await tx.costSnapshot.create({
               data: {
                 productId: item.productId,
-                ingredientsCost: product.recipeItems.reduce((sum, ri) => {
-                  const wasteFactor = 1 + (ri.wastePct || 0) / 100;
-                  return sum + (ri.qty * ri.ingredient.costPerUnit * wasteFactor);
-                }, 0),
-                packagingCost: product.packagingUsages.reduce((sum, pu) => sum + (pu.qty * pu.packaging.unitCost), 0),
-                laborCost: product.laborCostPreset ? 
-                  (product.laborCostPreset.minutesPerBatch / 60 * product.laborCostPreset.laborRatePerHour) / product.laborCostPreset.batchYield : 0,
-                overheadCost: 0,
-                totalUnitCost: unitCost
+                ingredientsCost: costs.ingredientsCost,
+                packagingCost: costs.packagingCost,
+                laborCost: costs.laborCost,
+                overheadCost: costs.overheadCost,
+                totalUnitCost: costs.totalUnitCost
               }
             });
           }

@@ -4,7 +4,9 @@ import { AuthenticatedRequest, CreatePackagingDto, UpdatePackagingDto } from '..
 
 export const getPackaging = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const { page = 1, limit = 20, search } = req.query as any;
+    const { search } = req.query as any;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 20), 100);
     const skip = (page - 1) * limit;
 
     const where = {

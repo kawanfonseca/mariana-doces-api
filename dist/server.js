@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const auth_routes_1 = require("./routes/auth.routes");
 const ingredients_routes_1 = require("./routes/ingredients.routes");
@@ -25,8 +26,22 @@ const users_routes_1 = require("./routes/users.routes");
 const error_middleware_1 = require("./middlewares/error.middleware");
 const auth_middleware_1 = require("./middlewares/auth.middleware");
 dotenv_1.default.config();
+const requiredEnvVars = ['JWT_SECRET', 'DATABASE_URL'];
+for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+        console.error(`Variável de ambiente obrigatória não definida: ${envVar}`);
+        process.exit(1);
+    }
+}
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
+const authLimiter = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { error: 'Muitas tentativas. Tente novamente em 15 minutos.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 app.use((0, helmet_1.default)());
 const allowedOrigins = [
     'https://mariana-doces-app.vercel.app',
@@ -48,9 +63,9 @@ app.use((0, cors_1.default)({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express_1.default.json());
-app.use(express_1.default.urlencoded({ extended: true }));
-app.use('/api/auth', auth_routes_1.authRouter);
+app.use(express_1.default.json({ limit: '1mb' }));
+app.use(express_1.default.urlencoded({ extended: true, limit: '1mb' }));
+app.use('/api/auth', authLimiter, auth_routes_1.authRouter);
 app.use('/api/users', users_routes_1.usersRouter);
 app.use('/api/debug', debug_routes_1.debugRouter);
 app.use('/api/debug-page', debug_page_routes_1.debugPageRouter);

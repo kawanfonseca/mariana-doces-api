@@ -6,5 +6,5 @@ import { configSchema } from '../utils/schemas';
 
 export const configRouter = Router();
 
-configRouter.get('/', getConfigs);
+configRouter.get('/', requireRole(['ADMIN', 'OPERATOR']), getConfigs);
 configRouter.put('/', requireRole(['ADMIN']), validateBody(configSchema), updateConfig);

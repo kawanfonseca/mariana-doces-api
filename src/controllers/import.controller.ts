@@ -5,7 +5,20 @@ import multer from 'multer';
 import csv from 'csv-parser';
 import { Readable } from 'stream';
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max
+    files: 1,
+  },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype !== 'text/csv' && !file.originalname.endsWith('.csv')) {
+      cb(new Error('Apenas arquivos CSV são permitidos'));
+      return;
+    }
+    cb(null, true);
+  },
+});
 
 export const uploadMiddleware = upload.single('csvFile');
 

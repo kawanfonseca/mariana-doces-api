@@ -140,7 +140,7 @@ export const getProductsReport = async (req: AuthenticatedRequest, res: Response
       }
 
       report.profit = report.revenue - report.costs;
-      report.marginPercent = report.costs > 0 ? (report.profit / report.costs) * 100 : 0;
+      report.marginPercent = report.revenue > 0 ? (report.profit / report.revenue) * 100 : 0;
 
       // Arredondar valores
       report.revenue = Math.round(report.revenue * 100) / 100;
@@ -186,22 +186,35 @@ export const exportSummaryCSV = async (req: AuthenticatedRequest, res: Response,
       }
     });
 
+    // Helper para escapar campos CSV (previne CSV injection)
+    const escapeCSV = (field: any): string => {
+      const str = String(field ?? '');
+      if (/^[=+\-@\t\r]/.test(str)) {
+        return `"'${str.replace(/"/g, '""')}"`;
+      }
+      if (/[,"\n\r]/.test(str)) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
     // Gerar CSV
     let csv = 'Data,Canal,Produto,Quantidade,Preço Unitário,Receita Bruta,Descontos,Taxas,Custos,Receita Líquida\n';
 
     orders.forEach(order => {
       order.items.forEach(item => {
+        const proportion = order.grossAmount > 0 ? item.lineGross / order.grossAmount : 0;
         const row = [
-          order.date.toLocaleDateString('pt-BR'),
-          order.channel === 'DIRECT' ? 'Direto' : 'iFood',
-          item.product?.name || 'N/A',
-          item.qty,
-          item.unitPrice.toFixed(2),
-          item.lineGross.toFixed(2),
-          (order.discounts * (item.lineGross / order.grossAmount)).toFixed(2),
-          (order.platformFees * (item.lineGross / order.grossAmount)).toFixed(2),
-          (order.costs * (item.lineGross / order.grossAmount)).toFixed(2),
-          item.lineNet.toFixed(2)
+          escapeCSV(order.date.toLocaleDateString('pt-BR')),
+          escapeCSV(order.channel === 'DIRECT' ? 'Direto' : 'iFood'),
+          escapeCSV(item.product?.name || 'N/A'),
+          escapeCSV(item.qty),
+          escapeCSV(item.unitPrice.toFixed(2)),
+          escapeCSV(item.lineGross.toFixed(2)),
+          escapeCSV((order.discounts * proportion).toFixed(2)),
+          escapeCSV((order.platformFees * proportion).toFixed(2)),
+          escapeCSV((order.costs * proportion).toFixed(2)),
+          escapeCSV(item.lineNet.toFixed(2))
         ].join(',');
         csv += row + '\n';
       });

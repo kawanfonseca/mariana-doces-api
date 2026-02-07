@@ -96,7 +96,7 @@ export const createSaleOrderSchema = z.object({
 
 // Inventory schemas
 export const inventoryMovementSchema = z.object({
-  type: z.enum(['IN', 'OUT', 'ADJUST']),
+  type: z.enum(['IN', 'OUT', 'ADJUSTMENT']),
   entity: z.enum(['INGREDIENT', 'PACKAGING', 'PRODUCT']),
   entityId: z.string().cuid('ID da entidade inválido'),
   qty: z.number().positive('Quantidade deve ser positiva'),
@@ -115,8 +115,8 @@ export const configSchema = z.object({
 
 // Query schemas
 export const paginationSchema = z.object({
-  page: z.string().transform(val => parseInt(val) || 1),
-  limit: z.string().transform(val => Math.min(parseInt(val) || 20, 100)),
+  page: z.string().transform(val => Math.max(1, parseInt(val) || 1)),
+  limit: z.string().transform(val => Math.min(Math.max(1, parseInt(val) || 20), 100)),
   search: z.string().optional()
 });
 
@@ -124,7 +124,12 @@ export const dateRangeSchema = z.object({
   dateFrom: z.string().refine(date => !isNaN(Date.parse(date)), 'Data inicial inválida').optional(),
   dateTo: z.string().refine(date => !isNaN(Date.parse(date)), 'Data final inválida').optional(),
   channel: z.enum(['DIRECT', 'IFOOD']).optional()
-});
+}).refine(data => {
+  if (data.dateFrom && data.dateTo) {
+    return new Date(data.dateFrom) <= new Date(data.dateTo);
+  }
+  return true;
+}, { message: 'Data inicial deve ser anterior ou igual à data final', path: ['dateTo'] });
 
 export const idParamSchema = z.object({
   id: z.string().cuid('ID inválido')

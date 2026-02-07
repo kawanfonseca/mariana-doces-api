@@ -1,7 +1,7 @@
 import { Request } from 'express';
 export type UserRole = 'ADMIN' | 'OPERATOR';
 export type SaleChannel = 'DIRECT' | 'IFOOD';
-export type MovementType = 'IN' | 'OUT' | 'ADJUST';
+export type MovementType = 'IN' | 'OUT' | 'ADJUSTMENT';
 export type MovementEntity = 'INGREDIENT' | 'PACKAGING' | 'PRODUCT';
 export interface AuthenticatedRequest extends Request {
     user?: {

@@ -2,9 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteOrder = exports.updateOrder = exports.createOrder = exports.getOrder = exports.getOrders = void 0;
 const database_1 = require("../services/database");
+const pricing_1 = require("../utils/pricing");
 const getOrders = async (req, res, next) => {
     try {
-        const { page = 1, limit = 20, dateFrom, dateTo, channel } = req.query;
+        const { dateFrom, dateTo, channel } = req.query;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(Math.max(1, parseInt(req.query.limit) || 20), 100);
         const skip = (page - 1) * limit;
         const where = {};
         if (dateFrom || dateTo) {
@@ -77,7 +80,15 @@ exports.getOrder = getOrder;
 const createOrder = async (req, res, next) => {
     try {
         const orderData = req.body;
-        const iFoodFeePercent = parseFloat(process.env.IFOOD_FEE_PERCENT || '25');
+        let iFoodFeePercent = parseFloat(process.env.IFOOD_FEE_PERCENT || '25');
+        try {
+            const config = await database_1.prisma.config.findUnique({ where: { key: 'IFOOD_FEE_PERCENT' } });
+            if (config) {
+                iFoodFeePercent = parseFloat(config.value) || iFoodFeePercent;
+            }
+        }
+        catch {
+        }
         const order = await database_1.prisma.$transaction(async (tx) => {
             let grossAmount = 0;
             const items = [];
@@ -111,32 +122,16 @@ const createOrder = async (req, res, next) => {
                         }
                     });
                     if (product) {
-                        let unitCost = 0;
-                        product.recipeItems.forEach(recipeItem => {
-                            const wasteFactor = 1 + (recipeItem.wastePct || 0) / 100;
-                            unitCost += recipeItem.qty * recipeItem.ingredient.costPerUnit * wasteFactor;
-                        });
-                        product.packagingUsages.forEach(usage => {
-                            unitCost += usage.qty * usage.packaging.unitCost;
-                        });
-                        if (product.laborCostPreset) {
-                            const hoursPerBatch = product.laborCostPreset.minutesPerBatch / 60;
-                            const laborCostPerUnit = (hoursPerBatch * product.laborCostPreset.laborRatePerHour) / product.laborCostPreset.batchYield;
-                            unitCost += laborCostPerUnit;
-                        }
-                        totalCosts += unitCost * item.qty;
+                        const costs = (0, pricing_1.calculateProductCost)(product);
+                        totalCosts += costs.totalUnitCost * item.qty;
                         await tx.costSnapshot.create({
                             data: {
                                 productId: item.productId,
-                                ingredientsCost: product.recipeItems.reduce((sum, ri) => {
-                                    const wasteFactor = 1 + (ri.wastePct || 0) / 100;
-                                    return sum + (ri.qty * ri.ingredient.costPerUnit * wasteFactor);
-                                }, 0),
-                                packagingCost: product.packagingUsages.reduce((sum, pu) => sum + (pu.qty * pu.packaging.unitCost), 0),
-                                laborCost: product.laborCostPreset ?
-                                    (product.laborCostPreset.minutesPerBatch / 60 * product.laborCostPreset.laborRatePerHour) / product.laborCostPreset.batchYield : 0,
-                                overheadCost: 0,
-                                totalUnitCost: unitCost
+                                ingredientsCost: costs.ingredientsCost,
+                                packagingCost: costs.packagingCost,
+                                laborCost: costs.laborCost,
+                                overheadCost: costs.overheadCost,
+                                totalUnitCost: costs.totalUnitCost
                             }
                         });
                     }

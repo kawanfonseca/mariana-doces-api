@@ -5,7 +5,9 @@ const database_1 = require("../services/database");
 const pricing_1 = require("../utils/pricing");
 const getProducts = async (req, res, next) => {
     try {
-        const { page = 1, limit = 20, search } = req.query;
+        const { search } = req.query;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(Math.max(1, parseInt(req.query.limit) || 20), 100);
         const skip = (page - 1) * limit;
         const where = {
             ...(search && {

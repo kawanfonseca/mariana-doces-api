@@ -260,20 +260,13 @@ export const autoRestock = async (req: AuthenticatedRequest, res: Response, next
 
     const result = await prisma.$transaction(async (tx) => {
       // Buscar ingredientes que precisam de reabastecimento
-      const ingredientsToRestock = await tx.ingredient.findMany({
-        where: {
-          active: true,
-          OR: [
-            { currentStock: { lte: 0 } },
-            {
-              AND: [
-                { currentStock: { gt: 0 } },
-                { currentStock: { lte: prisma.ingredient.fields.minStock } }
-              ]
-            }
-          ]
-        }
+      const allActiveIngredients = await tx.ingredient.findMany({
+        where: { active: true }
       });
+
+      const ingredientsToRestock = allActiveIngredients.filter(
+        i => i.currentStock <= 0 || (i.currentStock > 0 && i.currentStock <= i.minStock)
+      );
 
       const movements = [];
 
@@ -326,8 +319,9 @@ export const autoRestock = async (req: AuthenticatedRequest, res: Response, next
 export const getIngredientHistory = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const { ingredientId } = req.params;
-    const { page = 1, limit = 50, dateFrom, dateTo } = req.query as any;
-
+    const { dateFrom, dateTo } = req.query as any;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 50), 100);
     const skip = (page - 1) * limit;
 
     const where: any = { ingredientId };
@@ -407,7 +401,7 @@ export const getExpiringIngredients = async (req: AuthenticatedRequest, res: Res
       if (!expiringMap.has(ingredientId)) {
         // Simular data de vencimento (30-90 dias após entrada)
         const expirationDate = new Date(movement.date);
-        expirationDate.setDate(expirationDate.getDate() + Math.floor(Math.random() * 60) + 30);
+        expirationDate.setDate(expirationDate.getDate() + 60);
         
         expiringMap.set(ingredientId, {
           ingredient: movement.ingredient,

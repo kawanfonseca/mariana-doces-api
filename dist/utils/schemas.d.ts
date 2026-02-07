@@ -326,7 +326,7 @@ export declare const createSaleOrderSchema: z.ZodObject<{
     customerPhone?: string | undefined;
 }>;
 export declare const inventoryMovementSchema: z.ZodObject<{
-    type: z.ZodEnum<["IN", "OUT", "ADJUST"]>;
+    type: z.ZodEnum<["IN", "OUT", "ADJUSTMENT"]>;
     entity: z.ZodEnum<["INGREDIENT", "PACKAGING", "PRODUCT"]>;
     entityId: z.ZodString;
     qty: z.ZodNumber;
@@ -337,7 +337,7 @@ export declare const inventoryMovementSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     unit: string;
     qty: number;
-    type: "IN" | "OUT" | "ADJUST";
+    type: "IN" | "OUT" | "ADJUSTMENT";
     entity: "INGREDIENT" | "PACKAGING" | "PRODUCT";
     entityId: string;
     date?: string | undefined;
@@ -346,7 +346,7 @@ export declare const inventoryMovementSchema: z.ZodObject<{
 }, {
     unit: string;
     qty: number;
-    type: "IN" | "OUT" | "ADJUST";
+    type: "IN" | "OUT" | "ADJUSTMENT";
     entity: "INGREDIENT" | "PACKAGING" | "PRODUCT";
     entityId: string;
     date?: string | undefined;
@@ -379,11 +379,19 @@ export declare const paginationSchema: z.ZodObject<{
     limit: string;
     search?: string | undefined;
 }>;
-export declare const dateRangeSchema: z.ZodObject<{
+export declare const dateRangeSchema: z.ZodEffects<z.ZodObject<{
     dateFrom: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
     dateTo: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
     channel: z.ZodOptional<z.ZodEnum<["DIRECT", "IFOOD"]>>;
 }, "strip", z.ZodTypeAny, {
+    channel?: "DIRECT" | "IFOOD" | undefined;
+    dateFrom?: string | undefined;
+    dateTo?: string | undefined;
+}, {
+    channel?: "DIRECT" | "IFOOD" | undefined;
+    dateFrom?: string | undefined;
+    dateTo?: string | undefined;
+}>, {
     channel?: "DIRECT" | "IFOOD" | undefined;
     dateFrom?: string | undefined;
     dateTo?: string | undefined;

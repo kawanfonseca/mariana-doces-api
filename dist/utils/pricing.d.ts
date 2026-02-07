@@ -24,4 +24,25 @@ export declare const calculateMargin: (price: number, cost: number) => {
 };
 export declare const suggestPrice: (cost: number, targetMarginPercent: number) => number;
 export declare const calculateIFoodPrice: (directPrice: number, iFoodFeePercent: number) => number;
+export interface ProductWithCostData {
+    recipeItems: Array<{
+        qty: number;
+        wastePct: number | null;
+        ingredient: {
+            costPerUnit: number;
+        };
+    }>;
+    packagingUsages: Array<{
+        qty: number;
+        packaging: {
+            unitCost: number;
+        };
+    }>;
+    laborCostPreset: {
+        minutesPerBatch: number;
+        batchYield: number;
+        laborRatePerHour: number;
+    } | null;
+}
+export declare const calculateProductCost: (product: ProductWithCostData) => CostCalculation;
 //# sourceMappingURL=pricing.d.ts.map

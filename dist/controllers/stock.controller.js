@@ -4,7 +4,9 @@ exports.getCostAnalysis = exports.getStockAlerts = exports.getInventoryStatus = 
 const database_1 = require("../services/database");
 const getStockMovements = async (req, res, next) => {
     try {
-        const { page = 1, limit = 20, ingredientId } = req.query;
+        const { ingredientId } = req.query;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(Math.max(1, parseInt(req.query.limit) || 20), 100);
         const skip = (page - 1) * limit;
         const where = {
             ...(ingredientId && { ingredientId })
@@ -177,21 +179,11 @@ const getInventoryStatus = async (req, res, next) => {
 exports.getInventoryStatus = getInventoryStatus;
 const getStockAlerts = async (req, res, next) => {
     try {
-        const ingredients = await database_1.prisma.ingredient.findMany({
-            where: {
-                active: true,
-                OR: [
-                    { currentStock: { lte: 0 } },
-                    {
-                        AND: [
-                            { currentStock: { gt: 0 } },
-                            { currentStock: { lte: database_1.prisma.ingredient.fields.minStock } }
-                        ]
-                    }
-                ]
-            },
+        const allIngredients = await database_1.prisma.ingredient.findMany({
+            where: { active: true },
             orderBy: { currentStock: 'asc' }
         });
+        const ingredients = allIngredients.filter(i => i.currentStock <= 0 || (i.currentStock > 0 && i.currentStock <= i.minStock));
         const alerts = ingredients.map(ingredient => ({
             id: ingredient.id,
             name: ingredient.name,

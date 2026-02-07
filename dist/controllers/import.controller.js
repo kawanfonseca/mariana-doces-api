@@ -8,7 +8,20 @@ const database_1 = require("../services/database");
 const multer_1 = __importDefault(require("multer"));
 const csv_parser_1 = __importDefault(require("csv-parser"));
 const stream_1 = require("stream");
-const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
+const upload = (0, multer_1.default)({
+    storage: multer_1.default.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+        files: 1,
+    },
+    fileFilter: (_req, file, cb) => {
+        if (file.mimetype !== 'text/csv' && !file.originalname.endsWith('.csv')) {
+            cb(new Error('Apenas arquivos CSV são permitidos'));
+            return;
+        }
+        cb(null, true);
+    },
+});
 exports.uploadMiddleware = upload.single('csvFile');
 const importSalesCSV = async (req, res, next) => {
     try {

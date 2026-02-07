@@ -126,7 +126,7 @@ const getProductsReport = async (req, res, next) => {
                 report.costs = avgCost * report.quantitySold;
             }
             report.profit = report.revenue - report.costs;
-            report.marginPercent = report.costs > 0 ? (report.profit / report.costs) * 100 : 0;
+            report.marginPercent = report.revenue > 0 ? (report.profit / report.revenue) * 100 : 0;
             report.revenue = Math.round(report.revenue * 100) / 100;
             report.costs = Math.round(report.costs * 100) / 100;
             report.profit = Math.round(report.profit * 100) / 100;
@@ -166,20 +166,31 @@ const exportSummaryCSV = async (req, res, next) => {
                 }
             }
         });
+        const escapeCSV = (field) => {
+            const str = String(field ?? '');
+            if (/^[=+\-@\t\r]/.test(str)) {
+                return `"'${str.replace(/"/g, '""')}"`;
+            }
+            if (/[,"\n\r]/.test(str)) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
         let csv = 'Data,Canal,Produto,Quantidade,Preço Unitário,Receita Bruta,Descontos,Taxas,Custos,Receita Líquida\n';
         orders.forEach(order => {
             order.items.forEach(item => {
+                const proportion = order.grossAmount > 0 ? item.lineGross / order.grossAmount : 0;
                 const row = [
-                    order.date.toLocaleDateString('pt-BR'),
-                    order.channel === 'DIRECT' ? 'Direto' : 'iFood',
-                    item.product?.name || 'N/A',
-                    item.qty,
-                    item.unitPrice.toFixed(2),
-                    item.lineGross.toFixed(2),
-                    (order.discounts * (item.lineGross / order.grossAmount)).toFixed(2),
-                    (order.platformFees * (item.lineGross / order.grossAmount)).toFixed(2),
-                    (order.costs * (item.lineGross / order.grossAmount)).toFixed(2),
-                    item.lineNet.toFixed(2)
+                    escapeCSV(order.date.toLocaleDateString('pt-BR')),
+                    escapeCSV(order.channel === 'DIRECT' ? 'Direto' : 'iFood'),
+                    escapeCSV(item.product?.name || 'N/A'),
+                    escapeCSV(item.qty),
+                    escapeCSV(item.unitPrice.toFixed(2)),
+                    escapeCSV(item.lineGross.toFixed(2)),
+                    escapeCSV((order.discounts * proportion).toFixed(2)),
+                    escapeCSV((order.platformFees * proportion).toFixed(2)),
+                    escapeCSV((order.costs * proportion).toFixed(2)),
+                    escapeCSV(item.lineNet.toFixed(2))
                 ].join(',');
                 csv += row + '\n';
             });

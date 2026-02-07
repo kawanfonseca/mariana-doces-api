@@ -6,15 +6,24 @@ import { CreateUserDto, LoginDto, UserRole } from '../types';
 
 export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    console.log('🔐 [LOGIN] Login automático - usuário padrão');
-    
-    // Sempre retornar sucesso com usuário padrão
-    const user = {
-      id: '671dd650-0eab-4909-8d15-e356c8c5cac0',
-      email: 'kawanfonseca@hotmail.com',
-      name: 'Kawan Fonseca',
-      role: 'ADMIN'
-    };
+    const { email, password }: LoginDto = req.body;
+
+    // Buscar usuário
+    const user = await prisma.user.findFirst({
+      where: { email, active: true }
+    });
+
+    if (!user) {
+      res.status(401).json({ error: 'Credenciais inválidas' });
+      return;
+    }
+
+    // Verificar senha
+    const isValidPassword = await comparePassword(password, user.password);
+    if (!isValidPassword) {
+      res.status(401).json({ error: 'Credenciais inválidas' });
+      return;
+    }
 
     // Gerar token
     const token = generateToken({
@@ -22,8 +31,6 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
       email: user.email,
       role: user.role as UserRole
     });
-    
-    console.log('✅ [LOGIN] Login automático realizado para:', user.email);
 
     res.json({
       token,

@@ -4,7 +4,9 @@ import { AuthenticatedRequest, CreateStockMovementDto, InventoryStatusDto, Stock
 
 export const getStockMovements = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const { page = 1, limit = 20, ingredientId } = req.query as any;
+    const { ingredientId } = req.query as any;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 20), 100);
     const skip = (page - 1) * limit;
 
     const where = {
@@ -198,21 +200,14 @@ export const getInventoryStatus = async (req: AuthenticatedRequest, res: Respons
 
 export const getStockAlerts = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const ingredients = await prisma.ingredient.findMany({
-      where: {
-        active: true,
-        OR: [
-          { currentStock: { lte: 0 } },
-          {
-            AND: [
-              { currentStock: { gt: 0 } },
-              { currentStock: { lte: prisma.ingredient.fields.minStock } }
-            ]
-          }
-        ]
-      },
+    const allIngredients = await prisma.ingredient.findMany({
+      where: { active: true },
       orderBy: { currentStock: 'asc' }
     });
+
+    const ingredients = allIngredients.filter(
+      i => i.currentStock <= 0 || (i.currentStock > 0 && i.currentStock <= i.minStock)
+    );
 
     const alerts: StockAlertDto[] = ingredients.map(ingredient => ({
       id: ingredient.id,

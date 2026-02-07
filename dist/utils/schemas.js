@@ -76,7 +76,7 @@ exports.createSaleOrderSchema = zod_1.z.object({
     customerPhone: zod_1.z.string().optional()
 });
 exports.inventoryMovementSchema = zod_1.z.object({
-    type: zod_1.z.enum(['IN', 'OUT', 'ADJUST']),
+    type: zod_1.z.enum(['IN', 'OUT', 'ADJUSTMENT']),
     entity: zod_1.z.enum(['INGREDIENT', 'PACKAGING', 'PRODUCT']),
     entityId: zod_1.z.string().cuid('ID da entidade inválido'),
     qty: zod_1.z.number().positive('Quantidade deve ser positiva'),
@@ -91,15 +91,20 @@ exports.configSchema = zod_1.z.object({
     description: zod_1.z.string().optional()
 });
 exports.paginationSchema = zod_1.z.object({
-    page: zod_1.z.string().transform(val => parseInt(val) || 1),
-    limit: zod_1.z.string().transform(val => Math.min(parseInt(val) || 20, 100)),
+    page: zod_1.z.string().transform(val => Math.max(1, parseInt(val) || 1)),
+    limit: zod_1.z.string().transform(val => Math.min(Math.max(1, parseInt(val) || 20), 100)),
     search: zod_1.z.string().optional()
 });
 exports.dateRangeSchema = zod_1.z.object({
     dateFrom: zod_1.z.string().refine(date => !isNaN(Date.parse(date)), 'Data inicial inválida').optional(),
     dateTo: zod_1.z.string().refine(date => !isNaN(Date.parse(date)), 'Data final inválida').optional(),
     channel: zod_1.z.enum(['DIRECT', 'IFOOD']).optional()
-});
+}).refine(data => {
+    if (data.dateFrom && data.dateTo) {
+        return new Date(data.dateFrom) <= new Date(data.dateTo);
+    }
+    return true;
+}, { message: 'Data inicial deve ser anterior ou igual à data final', path: ['dateTo'] });
 exports.idParamSchema = zod_1.z.object({
     id: zod_1.z.string().cuid('ID inválido')
 });

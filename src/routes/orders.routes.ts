@@ -18,6 +18,6 @@ export const ordersRouter = Router();
 
 ordersRouter.get('/', validateQuery(dateRangeSchema), getOrders);
 ordersRouter.get('/:id', validateParams(idParamSchema), getOrder);
-ordersRouter.post('/', validateBody(createSaleOrderSchema), createOrder);
-ordersRouter.put('/:id', validateParams(idParamSchema), updateOrder);
+ordersRouter.post('/', requireRole(['ADMIN', 'OPERATOR']), validateBody(createSaleOrderSchema), createOrder);
+ordersRouter.put('/:id', requireRole(['ADMIN']), validateParams(idParamSchema), updateOrder);
 ordersRouter.delete('/:id', requireRole(['ADMIN']), validateParams(idParamSchema), deleteOrder);

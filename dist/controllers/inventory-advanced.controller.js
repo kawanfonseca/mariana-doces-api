@@ -211,20 +211,10 @@ const autoRestock = async (req, res, next) => {
     try {
         const { reason, notes, multiplier = 2 } = req.body;
         const result = await database_1.prisma.$transaction(async (tx) => {
-            const ingredientsToRestock = await tx.ingredient.findMany({
-                where: {
-                    active: true,
-                    OR: [
-                        { currentStock: { lte: 0 } },
-                        {
-                            AND: [
-                                { currentStock: { gt: 0 } },
-                                { currentStock: { lte: database_1.prisma.ingredient.fields.minStock } }
-                            ]
-                        }
-                    ]
-                }
+            const allActiveIngredients = await tx.ingredient.findMany({
+                where: { active: true }
             });
+            const ingredientsToRestock = allActiveIngredients.filter(i => i.currentStock <= 0 || (i.currentStock > 0 && i.currentStock <= i.minStock));
             const movements = [];
             for (const ingredient of ingredientsToRestock) {
                 const targetStock = ingredient.minStock * multiplier;
@@ -267,7 +257,9 @@ exports.autoRestock = autoRestock;
 const getIngredientHistory = async (req, res, next) => {
     try {
         const { ingredientId } = req.params;
-        const { page = 1, limit = 50, dateFrom, dateTo } = req.query;
+        const { dateFrom, dateTo } = req.query;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(Math.max(1, parseInt(req.query.limit) || 50), 100);
         const skip = (page - 1) * limit;
         const where = { ingredientId };
         if (dateFrom || dateTo) {
@@ -336,7 +328,7 @@ const getExpiringIngredients = async (req, res, next) => {
             const ingredientId = movement.ingredientId;
             if (!expiringMap.has(ingredientId)) {
                 const expirationDate = new Date(movement.date);
-                expirationDate.setDate(expirationDate.getDate() + Math.floor(Math.random() * 60) + 30);
+                expirationDate.setDate(expirationDate.getDate() + 60);
                 expiringMap.set(ingredientId, {
                     ingredient: movement.ingredient,
                     lastEntryDate: movement.date,
