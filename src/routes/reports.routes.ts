@@ -10,6 +10,6 @@ import { dateRangeSchema } from '../utils/schemas';
 
 export const reportsRouter = Router();
 
-reportsRouter.get('/summary', requireRole(['ADMIN']), validateQuery(dateRangeSchema), getSummaryReport);
-reportsRouter.get('/products', requireRole(['ADMIN']), validateQuery(dateRangeSchema), getProductsReport);
+reportsRouter.get('/summary', requireRole(['ADMIN', 'OPERATOR']), validateQuery(dateRangeSchema), getSummaryReport);
+reportsRouter.get('/products', requireRole(['ADMIN', 'OPERATOR']), validateQuery(dateRangeSchema), getProductsReport);
 reportsRouter.get('/export/csv', requireRole(['ADMIN']), validateQuery(dateRangeSchema), exportSummaryCSV);
