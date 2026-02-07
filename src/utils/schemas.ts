@@ -144,7 +144,7 @@ export const createStockMovementSchema = z.object({
     errorMap: () => ({ message: 'Tipo deve ser IN, OUT ou ADJUSTMENT' })
   }),
   quantity: z.number().positive('Quantidade deve ser positiva'),
-  reason: z.string().min(1, 'Motivo é obrigatório'),
+  reason: z.string().optional(),
   notes: z.string().optional(),
   date: z.string().refine(date => !isNaN(Date.parse(date)), 'Data inválida').optional()
 });

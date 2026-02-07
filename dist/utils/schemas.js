@@ -116,7 +116,7 @@ exports.createStockMovementSchema = zod_1.z.object({
         errorMap: () => ({ message: 'Tipo deve ser IN, OUT ou ADJUSTMENT' })
     }),
     quantity: zod_1.z.number().positive('Quantidade deve ser positiva'),
-    reason: zod_1.z.string().min(1, 'Motivo é obrigatório'),
+    reason: zod_1.z.string().optional(),
     notes: zod_1.z.string().optional(),
     date: zod_1.z.string().refine(date => !isNaN(Date.parse(date)), 'Data inválida').optional()
 });

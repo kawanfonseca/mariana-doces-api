@@ -421,21 +421,21 @@ export declare const createStockMovementSchema: z.ZodObject<{
     ingredientId: z.ZodString;
     type: z.ZodEnum<["IN", "OUT", "ADJUSTMENT"]>;
     quantity: z.ZodNumber;
-    reason: z.ZodString;
+    reason: z.ZodOptional<z.ZodString>;
     notes: z.ZodOptional<z.ZodString>;
     date: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
 }, "strip", z.ZodTypeAny, {
     ingredientId: string;
     type: "IN" | "OUT" | "ADJUSTMENT";
     quantity: number;
-    reason: string;
+    reason?: string | undefined;
     notes?: string | undefined;
     date?: string | undefined;
 }, {
     ingredientId: string;
     type: "IN" | "OUT" | "ADJUSTMENT";
     quantity: number;
-    reason: string;
+    reason?: string | undefined;
     notes?: string | undefined;
     date?: string | undefined;
 }>;
