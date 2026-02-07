@@ -115,16 +115,18 @@ export const configSchema = z.object({
 
 // Query schemas
 export const paginationSchema = z.object({
-  page: z.string().transform(val => Math.max(1, parseInt(val) || 1)),
-  limit: z.string().transform(val => Math.min(Math.max(1, parseInt(val) || 20), 100)),
+  page: z.string().optional().default('1').transform(val => Math.max(1, parseInt(val) || 1)),
+  limit: z.string().optional().default('20').transform(val => Math.min(Math.max(1, parseInt(val) || 20), 100)),
   search: z.string().optional()
 });
 
 export const dateRangeSchema = z.object({
   dateFrom: z.string().refine(date => !isNaN(Date.parse(date)), 'Data inicial inválida').optional(),
   dateTo: z.string().refine(date => !isNaN(Date.parse(date)), 'Data final inválida').optional(),
-  channel: z.enum(['DIRECT', 'IFOOD']).optional()
-}).refine(data => {
+  channel: z.enum(['DIRECT', 'IFOOD']).optional(),
+  page: z.string().optional(),
+  limit: z.string().optional()
+}).passthrough().refine(data => {
   if (data.dateFrom && data.dateTo) {
     return new Date(data.dateFrom) <= new Date(data.dateTo);
   }

@@ -367,39 +367,49 @@ export declare const configSchema: z.ZodObject<{
     description?: string | undefined;
 }>;
 export declare const paginationSchema: z.ZodObject<{
-    page: z.ZodEffects<z.ZodString, number, string>;
-    limit: z.ZodEffects<z.ZodString, number, string>;
+    page: z.ZodEffects<z.ZodDefault<z.ZodOptional<z.ZodString>>, number, string | undefined>;
+    limit: z.ZodEffects<z.ZodDefault<z.ZodOptional<z.ZodString>>, number, string | undefined>;
     search: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     page: number;
     limit: number;
     search?: string | undefined;
 }, {
-    page: string;
-    limit: string;
     search?: string | undefined;
+    page?: string | undefined;
+    limit?: string | undefined;
 }>;
 export declare const dateRangeSchema: z.ZodEffects<z.ZodObject<{
     dateFrom: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
     dateTo: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
     channel: z.ZodOptional<z.ZodEnum<["DIRECT", "IFOOD"]>>;
-}, "strip", z.ZodTypeAny, {
-    channel?: "DIRECT" | "IFOOD" | undefined;
-    dateFrom?: string | undefined;
-    dateTo?: string | undefined;
-}, {
-    channel?: "DIRECT" | "IFOOD" | undefined;
-    dateFrom?: string | undefined;
-    dateTo?: string | undefined;
-}>, {
-    channel?: "DIRECT" | "IFOOD" | undefined;
-    dateFrom?: string | undefined;
-    dateTo?: string | undefined;
-}, {
-    channel?: "DIRECT" | "IFOOD" | undefined;
-    dateFrom?: string | undefined;
-    dateTo?: string | undefined;
-}>;
+    page: z.ZodOptional<z.ZodString>;
+    limit: z.ZodOptional<z.ZodString>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    dateFrom: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+    dateTo: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+    channel: z.ZodOptional<z.ZodEnum<["DIRECT", "IFOOD"]>>;
+    page: z.ZodOptional<z.ZodString>;
+    limit: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    dateFrom: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+    dateTo: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+    channel: z.ZodOptional<z.ZodEnum<["DIRECT", "IFOOD"]>>;
+    page: z.ZodOptional<z.ZodString>;
+    limit: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">>, z.objectOutputType<{
+    dateFrom: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+    dateTo: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+    channel: z.ZodOptional<z.ZodEnum<["DIRECT", "IFOOD"]>>;
+    page: z.ZodOptional<z.ZodString>;
+    limit: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    dateFrom: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+    dateTo: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+    channel: z.ZodOptional<z.ZodEnum<["DIRECT", "IFOOD"]>>;
+    page: z.ZodOptional<z.ZodString>;
+    limit: z.ZodOptional<z.ZodString>;
+}, z.ZodTypeAny, "passthrough">>;
 export declare const idParamSchema: z.ZodObject<{
     id: z.ZodString;
 }, "strip", z.ZodTypeAny, {

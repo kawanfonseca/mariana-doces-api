@@ -91,15 +91,17 @@ exports.configSchema = zod_1.z.object({
     description: zod_1.z.string().optional()
 });
 exports.paginationSchema = zod_1.z.object({
-    page: zod_1.z.string().transform(val => Math.max(1, parseInt(val) || 1)),
-    limit: zod_1.z.string().transform(val => Math.min(Math.max(1, parseInt(val) || 20), 100)),
+    page: zod_1.z.string().optional().default('1').transform(val => Math.max(1, parseInt(val) || 1)),
+    limit: zod_1.z.string().optional().default('20').transform(val => Math.min(Math.max(1, parseInt(val) || 20), 100)),
     search: zod_1.z.string().optional()
 });
 exports.dateRangeSchema = zod_1.z.object({
     dateFrom: zod_1.z.string().refine(date => !isNaN(Date.parse(date)), 'Data inicial inválida').optional(),
     dateTo: zod_1.z.string().refine(date => !isNaN(Date.parse(date)), 'Data final inválida').optional(),
-    channel: zod_1.z.enum(['DIRECT', 'IFOOD']).optional()
-}).refine(data => {
+    channel: zod_1.z.enum(['DIRECT', 'IFOOD']).optional(),
+    page: zod_1.z.string().optional(),
+    limit: zod_1.z.string().optional()
+}).passthrough().refine(data => {
     if (data.dateFrom && data.dateTo) {
         return new Date(data.dateFrom) <= new Date(data.dateTo);
     }

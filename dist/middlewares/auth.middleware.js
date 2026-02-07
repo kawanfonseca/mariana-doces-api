@@ -1,18 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.requireRole = exports.authMiddleware = void 0;
+const jwt_1 = require("../utils/jwt");
 const authMiddleware = (req, res, next) => {
     try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            res.status(401).json({ error: 'Token não fornecido' });
+            return;
+        }
+        const token = authHeader.substring(7);
+        const decoded = (0, jwt_1.verifyToken)(token);
         req.user = {
-            id: '671dd650-0eab-4909-8d15-e356c8c5cac0',
-            email: 'kawanfonseca@hotmail.com',
-            role: 'ADMIN'
+            id: decoded.id,
+            email: decoded.email,
+            role: decoded.role
         };
-        console.log('🔐 [AUTH] Usuário padrão logado:', req.user.email);
         next();
     }
     catch (error) {
-        res.status(401).json({ error: 'Erro de autenticação' });
+        res.status(401).json({ error: 'Token inválido ou expirado' });
     }
 };
 exports.authMiddleware = authMiddleware;
