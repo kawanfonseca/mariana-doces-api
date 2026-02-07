@@ -76,7 +76,6 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Rotas públicas (com rate limiting)
 app.use('/api/auth', authLimiter, authRouter);
-app.use('/api/users', usersRouter);
 app.use('/api/debug', debugRouter);
 app.use('/api/debug-page', debugPageRouter);
 
@@ -84,6 +83,7 @@ app.use('/api/debug-page', debugPageRouter);
 app.use('/api', authMiddleware);
 
 // Rotas protegidas
+app.use('/api/users', usersRouter);
 app.use('/api/ingredients', ingredientsRouter);
 app.use('/api/packaging', packagingRouter);
 app.use('/api/products', productsRouter);

@@ -66,10 +66,10 @@ app.use((0, cors_1.default)({
 app.use(express_1.default.json({ limit: '1mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '1mb' }));
 app.use('/api/auth', authLimiter, auth_routes_1.authRouter);
-app.use('/api/users', users_routes_1.usersRouter);
 app.use('/api/debug', debug_routes_1.debugRouter);
 app.use('/api/debug-page', debug_page_routes_1.debugPageRouter);
 app.use('/api', auth_middleware_1.authMiddleware);
+app.use('/api/users', users_routes_1.usersRouter);
 app.use('/api/ingredients', ingredients_routes_1.ingredientsRouter);
 app.use('/api/packaging', packaging_routes_1.packagingRouter);
 app.use('/api/products', products_routes_1.productsRouter);
