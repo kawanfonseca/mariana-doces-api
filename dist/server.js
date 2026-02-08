@@ -82,6 +82,9 @@ app.use('/api/recipes', recipes_routes_1.default);
 app.use('/api/inventory/reports', inventory_reports_routes_1.default);
 app.use('/api/inventory/advanced', inventory_advanced_routes_1.default);
 app.use(error_middleware_1.errorHandler);
+app.get('/', (req, res) => {
+    res.json({ message: 'Mariana Doces API' });
+});
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
